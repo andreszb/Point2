@@ -31,7 +31,7 @@ namespace Point.Views
             string id = "";
             string name = "";
             string age = "";
-
+             
             foreach (var message in query)
             {
                 id = id + " " + message.Id;
