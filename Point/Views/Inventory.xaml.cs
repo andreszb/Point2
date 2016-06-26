@@ -10,12 +10,12 @@ using System.Diagnostics;
 
 namespace Point.Views
 {
-    public sealed partial class MainPage : Page
+    public sealed partial class Inventory : Page
     {
         string path;
         SQLite.Net.SQLiteConnection db;
 
-        public MainPage()
+        public Inventory()
         {
             this.InitializeComponent();
             path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
@@ -54,6 +54,28 @@ namespace Point.Views
                 Items = "No Items"
             });
 
+        }
+
+        private void AddButton_Click(object sender, RoutedEventArgs e)
+        {
+            inventorySplitView.IsPaneOpen = !inventorySplitView.IsPaneOpen;
+        }
+
+        private void addNewItem_Click(object sender, RoutedEventArgs e)
+        {
+            var s = db.Insert(new Item()
+            {
+                Brand = "TestBrand",
+                Model = "TestModel",
+                Color = "TestColor",
+                Size = "TestSize",
+                Num = 1,
+                Cost = 2,
+                Price = 3,
+                Category = "TestCategory",
+                Shortcut = "TestShortcut",
+                DateAdded = DateTime.Now
+            });
         }
     }
 
