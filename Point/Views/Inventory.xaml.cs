@@ -6,14 +6,27 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using System.Collections.ObjectModel;
 using SQLite.Net.Attributes;
+using SQLite.Net;
 using System.Diagnostics;
-
+using System.Threading.Tasks;
+using MyToolkit.Model;
+using MyToolkit.Paging;
+using System.ComponentModel;
 namespace Point.Views
 {
     public sealed partial class Inventory : Page
     {
         string path;
         SQLite.Net.SQLiteConnection db;
+        private string filter;
+
+        public ObservableCollection<Item> Items { get; set; }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            UpdateTable();
+        }
 
         public Inventory()
         {
@@ -29,26 +42,24 @@ namespace Point.Views
 
         private void Retrieve_Click(object sender, RoutedEventArgs e)
         {
-            var query = db.Table<Customer>();
-            string id = "";
-            string name = "";
-            string age = "";
-             
-            foreach (var message in query)
-            {
-                id = id + " " + message.Id;
-                name = name + " " + message.Name;
-            }
-
-            textBlock2.Text = "ID: " + id + "\nName: " + name + "\nAge: ";
+            UpdateTable();
         }
+
+        private async void UpdateTable()
+        {
+            await Task.Delay(1);
+            var query = db.Table<Item>();
+            Items = new ObservableCollection<Item>(query);
+            DataGrid.ItemsSource = Items;
+        }
+
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
 
             var s = db.Insert(new Customer()
             {
-                Name = textBox.Text,
+                Name = "textBox.Text",
                 Debt = 10.0,
                 Info = "No Info",
                 Items = "No Items"
@@ -65,17 +76,28 @@ namespace Point.Views
         {
             var s = db.Insert(new Item()
             {
-                Brand = "TestBrand",
-                Model = "TestModel",
-                Color = "TestColor",
-                Size = "TestSize",
-                Num = 1,
-                Cost = 2,
-                Price = 3,
-                Category = "TestCategory",
-                Shortcut = "TestShortcut",
+                Brand = BrandBox.Text,
+                Model = ModelBox.Text,
+                Color = ColorBox.Text,
+                Size = SizeBox.Text,
+                Num = int.Parse(NumBox.Text),
+                Cost = int.Parse(CostBox.Text),
+                Price = int.Parse(PriceBox.Text),
+                Category = CategoryBox.SelectedItem.ToString(),
+                Shortcut = ShortcutBox.Text,
                 DateAdded = DateTime.Now
             });
+        }
+
+        private void textChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                DataGrid.SetFilter<Item>(p =>
+                        p.Brand.ToLower().Contains(sender.Text.ToLower()) ||
+                        p.Model.ToLower().Contains(sender.Text.ToLower()) ||
+                        p.Category.ToLower().Contains(sender.Text.ToLower()));
+            }
         }
     }
 

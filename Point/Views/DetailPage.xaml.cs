@@ -11,6 +11,7 @@ namespace Point.Views
             InitializeComponent();
             NavigationCacheMode = NavigationCacheMode.Disabled;
         }
+
     }
 }
 

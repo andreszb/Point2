@@ -2,6 +2,7 @@
   "dependencies": {
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0",
     "Microsoft.Xaml.Behaviors.Uwp.Managed": "1.1.0",
+    "MyToolkit.Extended": "2.5.12",
     "Newtonsoft.Json": "8.0.3",
     "SQLite.Net-PCL": "3.1.1",
     "Template10": "1.1.*"
