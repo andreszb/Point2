@@ -10,10 +10,10 @@ using System.Diagnostics;
 
 namespace Point.Views
 {
-    public sealed partial class POS : Page
+    public sealed partial class Sales : Page
     {
 
-        public POS()
+        public Sales()
         {
             this.InitializeComponent();
         }

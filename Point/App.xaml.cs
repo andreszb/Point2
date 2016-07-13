@@ -52,9 +52,9 @@ namespace Point
         public override async Task OnStartAsync(StartKind startKind, IActivatedEventArgs args)
         {
             // long-running startup tasks go here
-            await Task.Delay(5000);
+            //await Task.Delay(5000);
 
-            NavigationService.Navigate(typeof(Views.POS));
+            NavigationService.Navigate(typeof(Views.Inventory));
             await Task.CompletedTask;
         }
     }

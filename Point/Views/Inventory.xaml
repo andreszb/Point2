@@ -14,9 +14,21 @@
 
     <Page.DataContext>
         <vm:MainPageViewModel x:Name="ViewModel" />
+  
     </Page.DataContext>
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.Resources>
+        <Style x:Key="NoAnimations" TargetType="ListView">
+            <Setter Property="ItemContainerTransitions">
+                <Setter.Value>
+                    <TransitionCollection>
+                    </TransitionCollection>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
+    <Grid Name="TopGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -30,7 +42,6 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <!--  TODO: change properties for narrow view  -->
-                        <!--<Setter Target="stateTextBox.Text" Value="Narrow Visual State"> /-->
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="VisualStateNormal">
@@ -39,7 +50,6 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <!--  TODO: change properties for normal view  -->
-                        <!--<Setter Target="stateTextBox.Text" Value="Normal Visual State" />-->
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="VisualStateWide">
@@ -48,7 +58,6 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <!--  TODO: change properties for wide view  -->
-                        <!--<Setter Target="stateTextBox.Text" Value="Wide Visual State" />-->
                     </VisualState.Setters>
                 </VisualState>
 
@@ -60,21 +69,23 @@
                              RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
                              RelativePanel.AlignTopWithPanel="True"
-                             Text="Inventario">
-
+                             Text="Punto de Venta">
             <controls:PageHeader.PrimaryCommands>
-                <AppBarButton Name="AddButton"
-                              Click="AddButton_Click"
+                <AppBarButton Name="newItemButton"
+                              Click="newItemButton_Click"
                               Icon="Add"
-                              Label="Agregar" />
+                              Label="Agregar a Inventario" />
+                <AppBarButton Name="NewSaleButton"
+                              Click="NewSaleButton_Click"
+                              Icon="Calculator"
+                              Label="Nueva Venta" />
             </controls:PageHeader.PrimaryCommands>
-
         </controls:PageHeader>
 
-        <SplitView Name="inventorySplitView"
+        <SplitView Name="newItemSplitView"
                    Grid.Row="1"
-                   DisplayMode="Inline"
-                   IsPaneOpen="True"
+                   DisplayMode="Overlay"
+                   IsPaneOpen="False"
                    PaneBackground="Beige"
                    PanePlacement="Right">
             <SplitView.Pane>
@@ -160,112 +171,164 @@
                                 Width="{Binding ActualWidth,
                                                 ElementName=gridColumnWidth}"
                                 HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Click="Retrieve_Click">
+                                VerticalAlignment="Center">
                             Cancelar
                         </Button>
                     </Grid>
                 </Grid>
             </SplitView.Pane>
             <SplitView.Content>
-                
-                
-                <Grid Name="ContentGrid">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="5*" />
-                            <ColumnDefinition x:Name="orderWidth" Width="150" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <AutoSuggestBox PlaceholderText="Filter" TextChanged="textChanged" />
-                        <ComboBox Grid.Column="1"
-                                  Width="{Binding ActualWidth,
-                                                  ElementName=orderWidth}"
-                                  PlaceholderText="Ordenar">
-                            <x:String>Item 1</x:String>
-                        </ComboBox>
-                        <!--<ListView Name="ItemsListView" Grid.ColumnSpan="2" Grid.Row="1">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Width="{Binding ActualWidth,
-                                                ElementName=ContentGrid}" VerticalAlignment="Center">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="{Binding Id}"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding Brand}"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding Model}"/>
-                                            <TextBlock Grid.Column="3" Text="{Binding Color}"/>
-                                            <TextBlock Grid.Column="4" Text="{Binding Size}"/>
-                                            <TextBlock Grid.Column="5" Text="{Binding Num}"/>
-                                            <TextBlock Grid.Column="6" Text="{Binding Cost}"/>
-                                            <TextBlock Grid.Column="7" Text="{Binding Price}"/>
+                <SplitView Name="NewSaleSplitView"
+                           DisplayMode="Inline"
+                           IsPaneOpen="True"
+                           PaneBackground="AliceBlue"
+                           PanePlacement="Right">
+                    <SplitView.Pane>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid Name="newItemGrid1"
+                                  MinHeight="400"
+                                  Margin="20">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="10*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock VerticalAlignment="Center" FontSize="36" Margin="0,10">Venta</TextBlock>
+                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                    <ListView Name="cartListView" SelectionMode="None" ItemsSource="{x:Bind currentSale.items}" Style="{StaticResource NoAnimations}">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Width="220" Margin="0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding qty}" />
+                                                        <TextBlock Text="{Binding item.Model}" />
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                        <TextBlock Text="$" />
+                                                        <TextBlock Text="{Binding item.Price}" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                </ScrollViewer>
+                                <Grid Grid.Row="2" Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" FontSize="30">Total: </TextBlock>
+                                    <TextBlock Grid.Column="1" Name="totalTextBlock" Text="{x:Bind currentSale.total}" FontSize="30"/>
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Row="1" Margin="0,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition x:Name="gridColumnWidth1" Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0"
+                                        Width="{Binding ActualWidth,
+                                                        ElementName=gridColumnWidth1}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Click="addNewItem_Click">
+                                    Agregar
+                                </Button>
+                                <Button Grid.Column="1"
+                                        Width="{Binding ActualWidth,
+                                                        ElementName=gridColumnWidth1}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                    Cancelar
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </SplitView.Pane>
+                    <SplitView.Content>
 
-                                        </Grid>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>-->
-                        <control:DataGrid x:Name="DataGrid"
-                                          Grid.Row="1"
-                                          Grid.ColumnSpan="2"
-                                          control:DataGridExtensions.UseSingleSelectionAndDeselection="False"
-                                          DefaultOrderIndex="1"
-                                          SelectedItem="{Binding SelectedItem,
-                                                                 Mode=TwoWay}"
-                                        >
-                            <control:DataGrid.Columns>
-                                <control:DataGridTextColumn Width="*"
-                                                            Binding="{Binding Brand}"
-                                                            Header="Brand" />
-                                <control:DataGridTextColumn Width="*"
-                                                            Binding="{Binding Model}"
-                                                            Header="Model" />
-                                <control:DataGridTextColumn Width="*"
-                                                            Binding="{Binding Color}"
-                                                            Header="Color" />
-                                <control:DataGridTextColumn Width="*"
-                                                            Binding="{Binding Size}"
-                                                            Header="Size" />
-                                <control:DataGridTextColumn Width="*"
-                                                            Binding="{Binding Num}"
-                                                            Header="Number" />
-                                <control:DataGridTextColumn Width="*"
-                                                            Binding="{Binding Cost}"
-                                                            Header="Cost" />
-                                <control:DataGridTextColumn Width="*"
-                                                            Binding="{Binding Price}"
-                                                            Header="Price" />
-                                <control:DataGridTextColumn Width="*"
-                                                            Binding="{Binding Category}"
-                                                            Header="Category" />
-                            </control:DataGrid.Columns>
-                            <control:DataGrid.ItemDetailsTemplate>
-                                <DataTemplate>
-                                    <StackPanel>
-                                        <TextBlock FontWeight="Bold" Text="Details: " />
-                                        <TextBlock Text="{Binding Id}" />
-                                        <TextBlock Text="{Binding Shortcut}" />
-                                        <TextBlock Text="{Binding DateAdded}" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </control:DataGrid.ItemDetailsTemplate>
-                        </control:DataGrid>
-                    </Grid>
-                </Grid>
+                        <Grid Name="ContentGrid">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="5*" />
+                                    <ColumnDefinition x:Name="orderWidth" Width="150" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <AutoSuggestBox PlaceholderText="Filter" TextChanged="textChanged" />
+                                <ComboBox Grid.Column="1"
+                                          Width="{Binding ActualWidth,
+                                                          ElementName=orderWidth}"
+                                          PlaceholderText="Ordenar">
+                                    <x:String>Item 1</x:String>
+                                </ComboBox>
+
+                                <control:DataGrid x:Name="DataGrid"
+                                                  Grid.Row="1"
+                                                  Grid.ColumnSpan="2"
+                                                  control:DataGridExtensions.UseSingleSelectionAndDeselection="False"
+                                                  DefaultOrderIndex="1"
+                                                  Tapped="addToCurrentSale">
+                                    <control:DataGrid.Columns>
+                                        <control:DataGridTextColumn Width="3*"
+                                                                    Binding="{Binding Brand}"
+                                                                    Header="Marca" />
+                                        <control:DataGridTextColumn Width="3*"
+                                                                    Binding="{Binding Model}"
+                                                                    Header="Modelo" />
+                                        <control:DataGridTextColumn Width="3*"
+                                                                    Binding="{Binding Color}"
+                                                                    Header="Color" />
+                                        <control:DataGridTextColumn Width="2*"
+                                                                    Binding="{Binding Size}"
+                                                                    Header="Tamano" />
+                                        <control:DataGridTextColumn Width="2*"
+                                                                    Binding="{Binding Num}"
+                                                                    Header="Cantidad" />
+                                        <control:DataGridTextColumn Width="2*"
+                                                                    Binding="{Binding Cost}"
+                                                                    Header="Costo" />
+                                        <control:DataGridTextColumn Width="2*"
+                                                                    Binding="{Binding Price}"
+                                                                    Header="Precio" />
+                                        <control:DataGridTextColumn Width="3*"
+                                                                    Binding="{Binding Category}"
+                                                                    Header="Categoria" />
+
+                                    </control:DataGrid.Columns>
+
+
+                                    <control:DataGrid.ItemDetailsTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Visibility="Collapsed">
+                                                <TextBlock FontWeight="Bold" Text="Detalles: " />
+                                                <TextBlock Text="{Binding Id}" />
+                                                <TextBlock Text="{Binding Shortcut}" />
+                                                <TextBlock Text="{Binding DateAdded}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </control:DataGrid.ItemDetailsTemplate>
+                                </control:DataGrid>
+                            </Grid>
+                        </Grid>
+                    </SplitView.Content>
+                </SplitView>
+
+
+
             </SplitView.Content>
         </SplitView>
 
