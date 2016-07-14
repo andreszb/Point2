@@ -17,7 +17,7 @@
             <!--  mainpage button  -->
 
             <Controls:HamburgerButtonInfo AutomationProperties.Name="Jerry"
-                                          ClearHistory="True"
+                                          ClearHistory="False"
                                           PageType="views:Inventory">
                 <StackPanel Orientation="Horizontal">
                     <SymbolIcon Width="48"
@@ -25,23 +25,23 @@
                                 Symbol="List" />
                     <TextBlock Margin="12,0,0,0"
                                VerticalAlignment="Center"
-                               Text="Inventario" />
+                               Text="Punto de Venta" />
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
             <Controls:HamburgerButtonInfo AutomationProperties.Name="Jerry"
-                                          ClearHistory="True"
+                                          ClearHistory="False"
                                           PageType="views:Customers">
                 <StackPanel Orientation="Horizontal">
                     <SymbolIcon Width="48"
                                 Height="48"
-                                Symbol="Shop" />
+                                Symbol="Contact" />
                     <TextBlock Margin="12,0,0,0"
                                VerticalAlignment="Center"
                                Text="Clientes" />
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
             <Controls:HamburgerButtonInfo AutomationProperties.Name="Jerry"
-                                          ClearHistory="True"
+                                          ClearHistory="False"
                                           PageType="views:Sales">
                 <StackPanel Orientation="Horizontal">
                     <SymbolIcon Width="48"

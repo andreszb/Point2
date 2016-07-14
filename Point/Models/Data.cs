@@ -156,6 +156,7 @@ namespace Point.Model
             private int _qty = 1;
             public Item item { get; set; }
             public string qty { get { return _qty.ToString() + "×"; } }
+            public double doubleQty { get { return _qty; } }
             public void incrementQty() { _qty++; }
 
         }
@@ -170,7 +171,7 @@ namespace Point.Model
 
         public string total
         {
-            get { return "$" + (items.Sum(x => (x as uniqueItem).item.Price)).ToString(); }
+            get { return "$" + (items.Sum(x => ((x as uniqueItem).item.Price * (x as uniqueItem).doubleQty))).ToString(); }
         }
 
         public bool addItem(Item item)

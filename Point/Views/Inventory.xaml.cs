@@ -18,9 +18,10 @@ using System.Linq;
 
 namespace Point.Views
 {
+
     public sealed partial class Inventory : Page
     {
-
+        private bool? brandCB {get;set;}
         private Data data = new Data();
         public CurrentSale currentSale = new CurrentSale();
 
@@ -65,9 +66,15 @@ namespace Point.Views
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
                 DataGrid.SetFilter<Item>(p =>
-                        p.Brand.ToLower().Contains(sender.Text.ToLower()) ||
-                        p.Model.ToLower().Contains(sender.Text.ToLower()) ||
-                        p.Category.ToLower().Contains(sender.Text.ToLower()));
+                        (p.Brand.ToLower().Contains(sender.Text.ToLower())&&(bool)brandCheckBox.IsChecked) ||
+                        (p.Model.ToLower().Contains(sender.Text.ToLower()) && (bool)modelCheckBox.IsChecked) ||
+                        (p.Color.ToLower().Contains(sender.Text.ToLower()) && (bool)colorCheckBox.IsChecked) ||
+                        (p.Size.ToLower().Contains(sender.Text.ToLower()) && (bool)sizeCheckBox.IsChecked) ||
+                        (p.Num.ToString().Contains(sender.Text.ToLower()) && (bool)numCheckBox.IsChecked) ||
+                        (p.Cost.ToString().Contains(sender.Text.ToLower()) && (bool)costCheckBox.IsChecked) ||
+                        (p.Price.ToString().Contains(sender.Text.ToLower()) && (bool)priceCheckBox.IsChecked) ||
+                        (p.Category.ToLower().Contains(sender.Text.ToLower()) && (bool)categoryCheckBox.IsChecked));
+
             }
         }
 
@@ -88,4 +95,6 @@ namespace Point.Views
         }
 
     }
+
+
 }

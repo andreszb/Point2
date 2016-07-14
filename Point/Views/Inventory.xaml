@@ -3,8 +3,8 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:Behaviors="using:Template10.Behaviors"
       xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:DataGridControl="using:MyToolkit.Controls"
       xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
-      xmlns:control="using:MyToolkit.Controls"
       xmlns:controls="using:Template10.Controls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:Point.Views"
@@ -14,15 +14,14 @@
 
     <Page.DataContext>
         <vm:MainPageViewModel x:Name="ViewModel" />
-  
+
     </Page.DataContext>
 
     <Page.Resources>
         <Style x:Key="NoAnimations" TargetType="ListView">
             <Setter Property="ItemContainerTransitions">
                 <Setter.Value>
-                    <TransitionCollection>
-                    </TransitionCollection>
+                    <TransitionCollection />
                 </Setter.Value>
             </Setter>
         </Style>
@@ -197,9 +196,16 @@
                                     <RowDefinition Height="10*" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-                                <TextBlock VerticalAlignment="Center" FontSize="36" Margin="0,10">Venta</TextBlock>
+                                <TextBlock Margin="0,10"
+                                           VerticalAlignment="Center"
+                                           FontSize="36">
+                                    Venta
+                                </TextBlock>
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                                    <ListView Name="cartListView" SelectionMode="None" ItemsSource="{x:Bind currentSale.items}" Style="{StaticResource NoAnimations}">
+                                    <ListView Name="cartListView"
+                                              ItemsSource="{x:Bind currentSale.items}"
+                                              SelectionMode="None"
+                                              Style="{StaticResource NoAnimations}">
                                         <ListView.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid Width="220" Margin="0">
@@ -222,11 +228,14 @@
                                 </ScrollViewer>
                                 <Grid Grid.Row="2" Margin="0,10,0,0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" FontSize="30">Total: </TextBlock>
-                                    <TextBlock Grid.Column="1" Name="totalTextBlock" Text="{x:Bind currentSale.total}" FontSize="30"/>
+                                    <TextBlock Grid.Column="0" FontSize="30">Total:</TextBlock>
+                                    <TextBlock Name="totalTextBlock"
+                                               Grid.Column="1"
+                                               FontSize="30"
+                                               Text="{x:Bind currentSale.total}" />
                                 </Grid>
                             </Grid>
                             <Grid Grid.Row="1" Margin="0,0,0,0">
@@ -272,46 +281,53 @@
                                 <ComboBox Grid.Column="1"
                                           Width="{Binding ActualWidth,
                                                           ElementName=orderWidth}"
-                                          PlaceholderText="Ordenar">
-                                    <x:String>Item 1</x:String>
+                                          PlaceholderText="Filtro">
+                                    <CheckBox Name="brandCheckBox">Marca</CheckBox>
+                                    <CheckBox Name="modelCheckBox">Modelo</CheckBox>
+                                    <CheckBox Name="colorCheckBox">Color</CheckBox>
+                                    <CheckBox Name="sizeCheckBox">Tamaño</CheckBox>
+                                    <CheckBox Name="numCheckBox">Cantidad</CheckBox>
+                                    <CheckBox Name="costCheckBox">Costo</CheckBox>
+                                    <CheckBox Name="priceCheckBox">Precio</CheckBox>
+                                    <CheckBox Name="categoryCheckBox">Categoría</CheckBox>
                                 </ComboBox>
 
-                                <control:DataGrid x:Name="DataGrid"
-                                                  Grid.Row="1"
-                                                  Grid.ColumnSpan="2"
-                                                  control:DataGridExtensions.UseSingleSelectionAndDeselection="False"
-                                                  DefaultOrderIndex="1"
-                                                  Tapped="addToCurrentSale">
-                                    <control:DataGrid.Columns>
-                                        <control:DataGridTextColumn Width="3*"
-                                                                    Binding="{Binding Brand}"
-                                                                    Header="Marca" />
-                                        <control:DataGridTextColumn Width="3*"
-                                                                    Binding="{Binding Model}"
-                                                                    Header="Modelo" />
-                                        <control:DataGridTextColumn Width="3*"
-                                                                    Binding="{Binding Color}"
-                                                                    Header="Color" />
-                                        <control:DataGridTextColumn Width="2*"
-                                                                    Binding="{Binding Size}"
-                                                                    Header="Tamano" />
-                                        <control:DataGridTextColumn Width="2*"
-                                                                    Binding="{Binding Num}"
-                                                                    Header="Cantidad" />
-                                        <control:DataGridTextColumn Width="2*"
-                                                                    Binding="{Binding Cost}"
-                                                                    Header="Costo" />
-                                        <control:DataGridTextColumn Width="2*"
-                                                                    Binding="{Binding Price}"
-                                                                    Header="Precio" />
-                                        <control:DataGridTextColumn Width="3*"
-                                                                    Binding="{Binding Category}"
-                                                                    Header="Categoria" />
+                                <DataGridControl:DataGrid x:Name="DataGrid"
+                                                          Grid.Row="1"
+                                                          Grid.ColumnSpan="2"
+                                                          DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="False"
+                                                          DefaultOrderIndex="1"
+                                                          Tapped="addToCurrentSale">
+                                    <DataGridControl:DataGrid.Columns>
+                                        <DataGridControl:DataGridTextColumn Width="3*"
+                                                                            Binding="{Binding Brand}"
+                                                                            Header="Marca" />
+                                        <DataGridControl:DataGridTextColumn Width="3*"
+                                                                            Binding="{Binding Model}"
+                                                                            Header="Modelo" />
+                                        <DataGridControl:DataGridTextColumn Width="3*"
+                                                                            Binding="{Binding Color}"
+                                                                            Header="Color" />
+                                        <DataGridControl:DataGridTextColumn Width="2*"
+                                                                            Binding="{Binding Size}"
+                                                                            Header="Tamaño" />
+                                        <DataGridControl:DataGridTextColumn Width="2*"
+                                                                            Binding="{Binding Num}"
+                                                                            Header="Cantidad" />
+                                        <DataGridControl:DataGridTextColumn Width="2*"
+                                                                            Binding="{Binding Cost}"
+                                                                            Header="Costo" />
+                                        <DataGridControl:DataGridTextColumn Width="2*"
+                                                                            Binding="{Binding Price}"
+                                                                            Header="Precio" />
+                                        <DataGridControl:DataGridTextColumn Width="3*"
+                                                                            Binding="{Binding Category}"
+                                                                            Header="Categoria" />
 
-                                    </control:DataGrid.Columns>
+                                    </DataGridControl:DataGrid.Columns>
 
 
-                                    <control:DataGrid.ItemDetailsTemplate>
+                                    <DataGridControl:DataGrid.ItemDetailsTemplate>
                                         <DataTemplate>
                                             <StackPanel Visibility="Collapsed">
                                                 <TextBlock FontWeight="Bold" Text="Detalles: " />
@@ -320,8 +336,8 @@
                                                 <TextBlock Text="{Binding DateAdded}" />
                                             </StackPanel>
                                         </DataTemplate>
-                                    </control:DataGrid.ItemDetailsTemplate>
-                                </control:DataGrid>
+                                    </DataGridControl:DataGrid.ItemDetailsTemplate>
+                                </DataGridControl:DataGrid>
                             </Grid>
                         </Grid>
                     </SplitView.Content>
