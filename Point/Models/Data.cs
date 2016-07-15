@@ -64,6 +64,21 @@ namespace Point.Model
 
         }
 
+        public void addNewDebt(string Name, double Debt, string Info, string Items)
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+              SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                var s = db.Insert(new Customer()
+                {
+                    Name = Name,
+                    Debt = Debt,
+                    Info = Info,
+                    Items = Items,
+                });
+            }
+        }
+
 
 
 
@@ -156,7 +171,7 @@ namespace Point.Model
             private int _qty = 1;
             public Item item { get; set; }
             public string qty { get { return _qty.ToString() + "×"; } }
-            public double doubleQty { get { return _qty; } }
+            public int intQty { get { return _qty; } set { _qty = value; } }
             public void incrementQty() { _qty++; }
 
         }
@@ -171,7 +186,7 @@ namespace Point.Model
 
         public string total
         {
-            get { return "$" + (items.Sum(x => ((x as uniqueItem).item.Price * (x as uniqueItem).doubleQty))).ToString(); }
+            get { return "$" + (items.Sum(x => ((x as uniqueItem).item.Price * (x as uniqueItem).intQty))).ToString(); }
         }
 
         public bool addItem(Item item)
@@ -191,8 +206,6 @@ namespace Point.Model
             }
             return false;
         }
-
-
     }
 
 }

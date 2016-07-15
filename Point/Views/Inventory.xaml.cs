@@ -100,17 +100,34 @@ namespace Point.Views
         private void NewSaleButton_Click(object sender, RoutedEventArgs e)
         {
             NewSaleSplitView.IsPaneOpen = !NewSaleSplitView.IsPaneOpen;
+            if (NewSaleSplitView.IsPaneOpen)
+            {
+                cancelNewSale_Click(null,null);
+                
+            }
            
+        }
+
+
+        
+
+        private void updateNewSalePane()
+        {
+            totalTextBlock.Text = currentSale.total;
+            cartListView.ItemsSource = null;
+            cartListView.ItemsSource = currentSale.items;
         }
 
         private void addToCurrentSale(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            var j = DataGrid.SelectedItem as Item;
-            currentSale.addItem(j);
-            totalTextBlock.Text = currentSale.total;
-            DataGrid.SelectedItem = null;
-            cartListView.ItemsSource = null;
-            cartListView.ItemsSource = currentSale.items;
+            if (NewSaleSplitView.IsPaneOpen)
+            {
+                var j = DataGrid.SelectedItem as Item;
+                currentSale.addItem(j);
+                DataGrid.SelectedItem = null;
+                updateNewSalePane();
+            } 
+            
         }
 
         private void checkDouble(TextBox sender, TextBoxTextChangingEventArgs args)
@@ -135,6 +152,28 @@ namespace Point.Views
             PriceBox.Text = String.Empty;
             CategoryBox.SelectedItem = null;
             ShortcutBox.Text = String.Empty;
+        }
+
+        private void cancelNewSale_Click(object sender, RoutedEventArgs e)
+        {
+            currentSale = new CurrentSale();
+            updateNewSalePane();
+        }
+
+        private void cartListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            if (e.ClickedItem != null)
+            {
+                CurrentSale.uniqueItem itemClicked = e.ClickedItem as CurrentSale.uniqueItem;
+                if (itemClicked.intQty > 1)
+                {
+                    itemClicked.intQty--;
+                } else
+                {
+                    currentSale.items.Remove(itemClicked);
+                }
+                updateNewSalePane();
+            }
         }
     }
 

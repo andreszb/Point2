@@ -209,6 +209,8 @@
                                 </TextBlock>
                                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                                     <ListView Name="cartListView"
+                                              IsItemClickEnabled="True"
+                                              ItemClick="cartListView_ItemClick"
                                               ItemsSource="{x:Bind currentSale.items}"
                                               SelectionMode="None"
                                               Style="{StaticResource NoAnimations}">
@@ -255,13 +257,14 @@
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         Click="addNewItem_Click">
-                                    Agregar
+                                    Aceptar
                                 </Button>
                                 <Button Grid.Column="1"
                                         Width="{Binding ActualWidth,
                                                         ElementName=gridColumnWidth1}"
                                         HorizontalAlignment="Center"
-                                        VerticalAlignment="Center">
+                                        VerticalAlignment="Center"
+                                        Click="cancelNewSale_Click">
                                     Cancelar
                                 </Button>
                             </Grid>
@@ -332,7 +335,7 @@
                                 </DataGridControl:DataGrid.Columns>
                                 <DataGridControl:DataGrid.ItemDetailsTemplate>
                                     <DataTemplate>
-                                        <StackPanel Visibility="Collapsed">
+                                        <StackPanel Name="DetailsStackPanel" Visibility="Visible">
                                             <TextBlock FontWeight="Bold" Text="Detalles: " />
                                             <TextBlock Text="{Binding Id}" />
                                             <TextBlock Text="{Binding Shortcut}" />
