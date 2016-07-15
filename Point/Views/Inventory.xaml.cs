@@ -48,18 +48,37 @@ namespace Point.Views
 
         private void addNewItem_Click(object sender, RoutedEventArgs e)
         {
-            data.addNewItem(
-                Brand: BrandBox.Text,
-                Model: ModelBox.Text,
-                Color: ColorBox.Text,
-                Size: SizeBox.Text,
-                Num: int.Parse(NumBox.Text),
-                Cost: int.Parse(CostBox.Text),
-                Price: int.Parse(PriceBox.Text),
-                Category: CategoryBox.SelectedItem.ToString(),
-                Shortcut: ShortcutBox.Text
-                );
+            if (vStr(BrandBox.Text) && vStr(ModelBox.Text) && vStr(ColorBox.Text) && vStr(SizeBox.Text) && CategoryBox.SelectedItem != null && vStr(NumBox.Text) && vStr(PriceBox.Text) && vStr(CostBox.Text))
+            {
+                data.addNewItem(
+                    Brand: BrandBox.Text,
+                    Model: ModelBox.Text,
+                    Color: ColorBox.Text,
+                    Size: SizeBox.Text,
+                    Num: int.Parse(NumBox.Text),
+                    Cost: double.Parse(CostBox.Text),
+                    Price: double.Parse(PriceBox.Text),
+                    Category: CategoryBox.SelectedItem.ToString(),
+                    Shortcut: ShortcutBox.Text != null ? ShortcutBox.Text : ""
+                    );
+                BrandBox.Text = String.Empty;
+                ModelBox.Text = String.Empty;
+                ColorBox.Text = String.Empty;
+                SizeBox.Text = String.Empty;
+                NumBox.Text = String.Empty;
+                CostBox.Text = String.Empty;
+                PriceBox.Text = String.Empty;
+                CategoryBox.SelectedItem = null;
+                ShortcutBox.Text = String.Empty;
+                UpdateTable();
+            }
         }
+
+        public bool vStr(string text)
+        {
+            return !string.IsNullOrWhiteSpace(text);
+        }
+        
 
         private void textChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
@@ -94,6 +113,29 @@ namespace Point.Views
             cartListView.ItemsSource = currentSale.items;
         }
 
+        private void checkDouble(TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            double dtemp;
+            if (!double.TryParse(sender.Text, out dtemp) && sender.Text != "")
+            {
+                int pos = sender.SelectionStart - 1;
+                sender.Text = sender.Text.Remove(pos, 1);
+                sender.SelectionStart = pos;
+            }
+        }
+
+        private void cancelNewItem_Click(object sender, RoutedEventArgs e)
+        {
+            BrandBox.Text = String.Empty;
+            ModelBox.Text = String.Empty;
+            ColorBox.Text = String.Empty;
+            SizeBox.Text = String.Empty;
+            NumBox.Text = String.Empty;
+            CostBox.Text = String.Empty;
+            PriceBox.Text = String.Empty;
+            CategoryBox.SelectedItem = null;
+            ShortcutBox.Text = String.Empty;
+        }
     }
 
 

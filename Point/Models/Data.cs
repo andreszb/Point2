@@ -42,7 +42,7 @@ namespace Point.Model
             }
         }
 
-        public void addNewItem(string Brand, string Model, string Color, string Size, int Num, int Cost, int Price, string Category, string Shortcut)
+        public void addNewItem(string Brand, string Model, string Color, string Size, int Num, double Cost, double Price, string Category, string Shortcut)
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
                SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
