@@ -103,7 +103,7 @@ namespace Point.Views
             if (NewSaleSplitView.IsPaneOpen)
             {
                 cancelNewSale_Click(null,null);
-                
+                DataGrid.SelectedItem = null;
             }
            
         }
@@ -174,6 +174,11 @@ namespace Point.Views
                 }
                 updateNewSalePane();
             }
+        }
+
+        private void DataGrid_KeyUp(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            Debug.WriteLine("keyup");
         }
     }
 

@@ -282,7 +282,7 @@
                                     <ColumnDefinition Width="5*" />
                                     <ColumnDefinition x:Name="orderWidth" Width="150" />
                                 </Grid.ColumnDefinitions>
-                                <AutoSuggestBox PlaceholderText="Filter" TextChanged="textChanged" />
+                                <AutoSuggestBox PlaceholderText="Buscar" TextChanged="textChanged" />
                                 <Button Grid.Column="1"
                                         Width="{Binding ActualWidth,
                                                         ElementName=orderWidth}"
@@ -305,8 +305,9 @@
                             </Grid>
                             <DataGridControl:DataGrid x:Name="DataGrid"
                                                       Grid.Row="1"
-                                                      DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="False"
+                                                      DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="True"
                                                       DefaultOrderIndex="1"
+                                                      KeyUp="DataGrid_KeyUp"
                                                       Tapped="addToCurrentSale">
                                 <DataGridControl:DataGrid.Columns>
                                     <DataGridControl:DataGridTextColumn Width="3*"
@@ -331,7 +332,6 @@
                                     <DataGridControl:DataGridTextColumn Width="3*"
                                                                         Binding="{Binding Category}"
                                                                         Header="Categoria" />
-
                                 </DataGridControl:DataGrid.Columns>
                                 <DataGridControl:DataGrid.ItemDetailsTemplate>
                                     <DataTemplate>
@@ -347,13 +347,8 @@
                         </Grid>
                     </SplitView.Content>
                 </SplitView>
-
-
-
             </SplitView.Content>
         </SplitView>
-
-
     </Grid>
 </Page>
 
