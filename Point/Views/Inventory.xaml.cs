@@ -35,6 +35,19 @@ namespace Point.Views
         public Inventory()
         {
             this.InitializeComponent();
+            data.addNewItemToSaleByDay(new Item()
+            {
+                Brand = "hdfsdf",
+                Model = "blatyrtygsbla",
+                Color = "pop",
+                Size = "M",
+                Num = 1,
+                Cost = 3,
+                Price = 5,
+                Category = "Caca",
+                DateAdded = DateTime.Now
+            }
+            );
         }
 
         private void UpdateTable()

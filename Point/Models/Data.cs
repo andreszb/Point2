@@ -26,6 +26,8 @@ namespace Point.Model
                 db.CreateTable<Customer>();
                 db.CreateTable<Item>();
                 db.CreateTable<Sale>();
+                db.CreateTable<SalesByDay>();
+                
             }
 
         }
@@ -71,6 +73,48 @@ namespace Point.Model
                 });
             }
 
+        }
+
+        public void addNewItemToSaleByDay(Item item)
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                var date = DateTime.Now;
+                var stringDate = date.ToLocalTime().ToString("s").Substring(2, 8);
+                SalesByDay today = (from s in db.Table<SalesByDay>() where s.Day == stringDate select s).FirstOrDefault();
+                if (today == null)
+                {
+                    db.Insert(new SalesByDay() { Day = stringDate, ItemsString = "\n1×"+item.Description()+"\n", Total = item.Price });
+                } else
+                {
+                    if (today.ItemsString.Contains(item.Description()))
+                    {
+                        int index = today.ItemsString.IndexOf(item.Description());
+                        string numAsString = "";
+                        int i;
+                        for (i = index-2; !today.ItemsString[i].Equals('\n'); i--)
+                        {
+                            numAsString += today.ItemsString[i];
+                        }
+                        string firstString = today.ItemsString.Substring(0, i+1);
+                        string secondString = today.ItemsString.Substring(index-1);
+                        int newNum = int.Parse(numAsString);
+                        newNum++;
+                        string newNumAsString = newNum.ToString();
+                        today.ItemsString = firstString + newNumAsString + secondString;
+                        Debug.WriteLine(today.ItemsString);
+                        
+                    } else
+                    {
+                        today.ItemsString += "1×" + item.Description() + "\n";
+                    }
+                    today.Total += item.Price;
+                    db.Update(today);
+
+                }
+
+            }
         }
 
         public void updateItem(Item item)
@@ -175,6 +219,12 @@ namespace Point.Model
         [MaxLength(100)]
         [NotNull]
         public DateTime DateAdded { get; set; }
+
+        public string Description()
+        {
+            var culture = new CultureInfo("es-MX");
+            return Brand + "\t" + Model + "\t" + Color + "\t" + Size + "\t" + String.Format(culture, "{0:C2}", Price);
+        }
     }
 
     public partial class Sale
@@ -191,6 +241,21 @@ namespace Point.Model
         [NotNull]
         public Double Total { get; set; }
 
+    }
+
+    public partial class SalesByDay
+    {
+        [PrimaryKey, AutoIncrement]
+        public Int64 Id { get; set; }
+
+        [NotNull][Unique]
+        public String Day { get; set; }
+
+        [NotNull]
+        public String ItemsString { get; set; }
+
+        [NotNull]
+        public Double Total { get; set; }
     }
 
     public class CurrentSale
@@ -220,7 +285,7 @@ namespace Point.Model
             CultureInfo culture = new CultureInfo("es-MX");
             foreach (uniqueItem ui in items)
             {
-                returnString += ui.qty + ui.item.Model + "\t" + String.Format(culture, "{0:C2}", ui.item.Price) + "\n";
+                returnString += ui.qty + ui.item.Description();// ui.item.Model + "\t" + String.Format(culture, "{0:C2}", ui.item.Price) + "\n";
             }
             return returnString;
         }
