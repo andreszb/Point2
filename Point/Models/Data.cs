@@ -42,6 +42,16 @@ namespace Point.Model
             }
         }
 
+        public List<Sale> getSales()
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                var query = db.Table<Sale>();
+                return new List<Sale>(query);
+            }
+        }
+
         public void addNewItem(string Brand, string Model, string Color, string Size, int Num, double Cost, double Price, string Category)
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
@@ -99,6 +109,8 @@ namespace Point.Model
 
         public void addNewSale(CurrentSale sale)
         {
+           
+            
             using (var db = new SQLite.Net.SQLiteConnection(new
               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
             {
@@ -106,6 +118,7 @@ namespace Point.Model
                 {
                     Items = sale.getItems(),
                     Total = sale.total,
+                    
                     Date = DateTime.Now
                 });
             }

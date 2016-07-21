@@ -18,6 +18,7 @@
     </Page.DataContext>
     <Page.Resources>
         <conv:DateFormatConverter x:Name="DateToStringFormatConverter" />
+        <conv:TimeFormatConverter x:Name="TimeToStringFormatConverter" />
         <conv:DoubleToCurrencyFormatConverter x:Name="DoubleToStringFormatConverter" />
 
     </Page.Resources>
@@ -76,68 +77,35 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*" />
-                    <ColumnDefinition x:Name="orderWidth" Width="150" />
-                </Grid.ColumnDefinitions>
-                <AutoSuggestBox PlaceholderText="Buscar" TextChanged="textChanged" />
-                <Button Grid.Column="1"
-                        Width="{Binding ActualWidth,
-                                        ElementName=orderWidth}"
-                        Content="Filtro">
-                    <Button.Flyout>
-                        <Flyout>
-                            <ItemsControl>
-                                <CheckBox Name="brandCheckBox" IsChecked="True">Marca</CheckBox>
-                                <CheckBox Name="modelCheckBox" IsChecked="True">Modelo</CheckBox>
-                                <CheckBox Name="colorCheckBox" IsChecked="True">Color</CheckBox>
-                                <CheckBox Name="sizeCheckBox" IsChecked="False">Tamaño</CheckBox>
-                                <CheckBox Name="numCheckBox" IsChecked="False">Cantidad</CheckBox>
-                                <CheckBox Name="costCheckBox" IsChecked="False">Costo</CheckBox>
-                                <CheckBox Name="priceCheckBox" IsChecked="False">Precio</CheckBox>
-                                <CheckBox Name="categoryCheckBox" IsChecked="False">Categoría</CheckBox>
-                            </ItemsControl>
-                        </Flyout>
-                    </Button.Flyout>
-                </Button>
-            </Grid>
+            <AutoSuggestBox PlaceholderText="Buscar" TextChanged="textChanged" />
             <DataGridControl:DataGrid x:Name="DataGrid"
                                       Grid.Row="1"
-                                      DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="True"
-                                      DefaultOrderIndex="1"
-                                      Tapped="addToCurrentSale">
+                                      DefaultOrderIndex="0"
+                                      DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="True">
                 <DataGridControl:DataGrid.Columns>
                     <DataGridControl:DataGridTextColumn Width="3*"
-                                                        Binding="{Binding Brand}"
-                                                        Header="Marca" />
+                                                        Binding="{Binding Date,
+                                                                          Converter={StaticResource DateToStringFormatConverter}}"
+                                                        IsAscendingDefault="False"
+                                                        CanSort="True"
+                                                        Header="Dia" />
                     <DataGridControl:DataGridTextColumn Width="3*"
-                                                        Binding="{Binding Model}"
-                                                        Header="Modelo" />
-                    <DataGridControl:DataGridTextColumn Width="3*"
-                                                        Binding="{Binding Color}"
-                                                        Header="Color" />
+                                                        Binding="{Binding Date,
+                                                                          Converter={StaticResource TimeToStringFormatConverter}}"
+                                                        CanSort="False"
+                                                        Header="Hora" />
                     <DataGridControl:DataGridTextColumn Width="2*"
-                                                        Binding="{Binding Size}"
-                                                        Header="Tamaño" />
-                    <DataGridControl:DataGridTextColumn Width="2*"
-                                                        Binding="{Binding Num}"
-                                                        Header="Cantidad" />
-
-                    <DataGridControl:DataGridTextColumn Width="2*"
-                                                        Binding="{Binding Price,
+                                                        CanSort="False"
+                                                        Binding="{Binding Total,
                                                                           Converter={StaticResource DoubleToStringFormatConverter}}"
-                                                        Header="Precio" />
-                    <DataGridControl:DataGridTextColumn Width="3*"
-                                                        Binding="{Binding Category}"
-                                                        Header="Categoria" />
+                                                        Header="Total" />
                 </DataGridControl:DataGrid.Columns>
                 <DataGridControl:DataGrid.ItemDetailsTemplate>
                     <DataTemplate>
                         <StackPanel Name="DetailsStackPanel" Visibility="Visible">
                             <TextBlock FontWeight="Bold" Text="Detalles: " />
                             <TextBlock Text="{Binding Id}" />
-                            <TextBlock Text="{Binding DateAdded, Converter={StaticResource DateToStringFormatConverter}}" />
+                            <TextBlock Text="{Binding Items}" />
                         </StackPanel>
                     </DataTemplate>
                 </DataGridControl:DataGrid.ItemDetailsTemplate>
