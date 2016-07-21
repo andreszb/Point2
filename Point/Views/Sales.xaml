@@ -3,8 +3,10 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:Behaviors="using:Template10.Behaviors"
       xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:DataGridControl="using:MyToolkit.Controls"
       xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:controls="using:Template10.Controls"
+      xmlns:conv="using:Point.Converters"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:Point.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -14,9 +16,17 @@
     <Page.DataContext>
         <vm:MainPageViewModel x:Name="ViewModel" />
     </Page.DataContext>
+    <Page.Resources>
+        <conv:DateFormatConverter x:Name="DateToStringFormatConverter" />
+        <conv:DoubleToCurrencyFormatConverter x:Name="DoubleToStringFormatConverter" />
 
-    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    </Page.Resources>
 
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
@@ -61,7 +71,78 @@
             </controls:PageHeader.SecondaryCommands>
 
         </controls:PageHeader>
+        <Grid x:Name="salesViewGrid" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition x:Name="orderWidth" Width="150" />
+                </Grid.ColumnDefinitions>
+                <AutoSuggestBox PlaceholderText="Buscar" TextChanged="textChanged" />
+                <Button Grid.Column="1"
+                        Width="{Binding ActualWidth,
+                                        ElementName=orderWidth}"
+                        Content="Filtro">
+                    <Button.Flyout>
+                        <Flyout>
+                            <ItemsControl>
+                                <CheckBox Name="brandCheckBox" IsChecked="True">Marca</CheckBox>
+                                <CheckBox Name="modelCheckBox" IsChecked="True">Modelo</CheckBox>
+                                <CheckBox Name="colorCheckBox" IsChecked="True">Color</CheckBox>
+                                <CheckBox Name="sizeCheckBox" IsChecked="False">Tamaño</CheckBox>
+                                <CheckBox Name="numCheckBox" IsChecked="False">Cantidad</CheckBox>
+                                <CheckBox Name="costCheckBox" IsChecked="False">Costo</CheckBox>
+                                <CheckBox Name="priceCheckBox" IsChecked="False">Precio</CheckBox>
+                                <CheckBox Name="categoryCheckBox" IsChecked="False">Categoría</CheckBox>
+                            </ItemsControl>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+            </Grid>
+            <DataGridControl:DataGrid x:Name="DataGrid"
+                                      Grid.Row="1"
+                                      DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="True"
+                                      DefaultOrderIndex="1"
+                                      Tapped="addToCurrentSale">
+                <DataGridControl:DataGrid.Columns>
+                    <DataGridControl:DataGridTextColumn Width="3*"
+                                                        Binding="{Binding Brand}"
+                                                        Header="Marca" />
+                    <DataGridControl:DataGridTextColumn Width="3*"
+                                                        Binding="{Binding Model}"
+                                                        Header="Modelo" />
+                    <DataGridControl:DataGridTextColumn Width="3*"
+                                                        Binding="{Binding Color}"
+                                                        Header="Color" />
+                    <DataGridControl:DataGridTextColumn Width="2*"
+                                                        Binding="{Binding Size}"
+                                                        Header="Tamaño" />
+                    <DataGridControl:DataGridTextColumn Width="2*"
+                                                        Binding="{Binding Num}"
+                                                        Header="Cantidad" />
 
-    </RelativePanel>
+                    <DataGridControl:DataGridTextColumn Width="2*"
+                                                        Binding="{Binding Price,
+                                                                          Converter={StaticResource DoubleToStringFormatConverter}}"
+                                                        Header="Precio" />
+                    <DataGridControl:DataGridTextColumn Width="3*"
+                                                        Binding="{Binding Category}"
+                                                        Header="Categoria" />
+                </DataGridControl:DataGrid.Columns>
+                <DataGridControl:DataGrid.ItemDetailsTemplate>
+                    <DataTemplate>
+                        <StackPanel Name="DetailsStackPanel" Visibility="Visible">
+                            <TextBlock FontWeight="Bold" Text="Detalles: " />
+                            <TextBlock Text="{Binding Id}" />
+                            <TextBlock Text="{Binding DateAdded, Converter={StaticResource DateToStringFormatConverter}}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </DataGridControl:DataGrid.ItemDetailsTemplate>
+            </DataGridControl:DataGrid>
+        </Grid>
+    </Grid>
 </Page>
 

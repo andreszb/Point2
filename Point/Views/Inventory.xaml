@@ -6,6 +6,7 @@
       xmlns:DataGridControl="using:MyToolkit.Controls"
       xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:controls="using:Template10.Controls"
+      xmlns:conv="using:Point.Converters"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:Point.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -25,7 +26,12 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <conv:DateFormatConverter x:Name="DateToStringFormatConverter" />
+        <conv:DoubleToCurrencyFormatConverter x:Name="DoubleToStringFormatConverter" />
+
     </Page.Resources>
+
+
 
     <Grid Name="TopGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
@@ -74,6 +80,10 @@
                               Click="newItemButton_Click"
                               Icon="Add"
                               Label="Agregar a Inventario" />
+                <AppBarButton Name="editItemButton"
+                              Click="editItemButton_Click"
+                              Icon="Edit"
+                              Label="Modificar inventario" />
                 <AppBarButton Name="NewSaleButton"
                               Click="NewSaleButton_Click"
                               Icon="Calculator"
@@ -98,7 +108,6 @@
                               MinHeight="400"
                               Margin="20">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="*" />
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="*" />
@@ -152,10 +161,7 @@
                                       PlaceholderText="Categoria">
                                 <x:String>Item 1</x:String>
                             </ComboBox>
-                            <TextBox Name="ShortcutBox"
-                                     Grid.Row="9"
-                                     VerticalAlignment="Center"
-                                     PlaceholderText="Atajo (Opcional)" />
+
                         </Grid>
                     </ScrollViewer>
                     <Grid Grid.Row="1" Margin="0,0,0,0">
@@ -185,7 +191,7 @@
             <SplitView.Content>
                 <SplitView Name="NewSaleSplitView"
                            DisplayMode="Inline"
-                           IsPaneOpen="False"
+                           IsPaneOpen="True"
                            PaneBackground="AliceBlue"
                            PanePlacement="Right">
                     <SplitView.Pane>
@@ -226,8 +232,7 @@
                                                         <TextBlock Text="{Binding item.Model}" />
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                                        <TextBlock Text="$" />
-                                                        <TextBlock Text="{Binding item.Price}" />
+                                                        <TextBlock Text="{Binding item.Price, Converter={StaticResource DoubleToStringFormatConverter}}" />
                                                     </StackPanel>
                                                 </Grid>
                                             </DataTemplate>
@@ -243,7 +248,7 @@
                                     <TextBlock Name="totalTextBlock"
                                                Grid.Column="1"
                                                FontSize="30"
-                                               Text="{x:Bind currentSale.total}" />
+                                               Text="$0.00" />
                                 </Grid>
                             </Grid>
                             <Grid Grid.Row="1" Margin="0,0,0,0">
@@ -256,7 +261,7 @@
                                                         ElementName=gridColumnWidth1}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
-                                        Click="addNewItem_Click">
+                                        Click="addNewSaleButton_Click">
                                     Aceptar
                                 </Button>
                                 <Button Grid.Column="1"
@@ -271,80 +276,275 @@
                         </Grid>
                     </SplitView.Pane>
                     <SplitView.Content>
+                        <SplitView Name="EditItemSplitView"
+                                   DisplayMode="Inline"
+                                   IsPaneOpen="False"
+                                   PanePlacement="Left">
+                            <SplitView.Pane>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <ScrollViewer Name="editScrollViewer" VerticalScrollBarVisibility="Auto">
+                                        <Grid Name="editItemGrid"
+                                              MinHeight="400"
+                                              Margin="20">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock VerticalAlignment="Center" FontSize="34">Editar articulo</TextBlock>
+                                                <Button Name="deleteItemFromDBButton"
+                                                        Margin="15,0,0,0"
+                                                        Background="Transparent"
+                                                        Visibility="Collapsed">
+                                                    <SymbolIcon Width="30"
+                                                                Height="30"
+                                                                Symbol="Delete" />
+                                                    <Button.Flyout>
+                                                        <Flyout x:Name="deleteFlyout">
+                                                            <StackPanel>
+                                                                <TextBlock Margin="5">Eliminar articulo seleccionado?</TextBlock>
+                                                                <Button Margin="5"
+                                                                        HorizontalAlignment="Center"
+                                                                        Background="Red"
+                                                                        Click="deleteItemFromDBButton_Click">
+                                                                    Eliminar
+                                                                </Button>
+                                                            </StackPanel>
 
-                        <Grid x:Name="ContentGrid">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="5*" />
-                                    <ColumnDefinition x:Name="orderWidth" Width="150" />
-                                </Grid.ColumnDefinitions>
-                                <AutoSuggestBox PlaceholderText="Buscar" TextChanged="textChanged" />
-                                <Button Grid.Column="1"
-                                        Width="{Binding ActualWidth,
-                                                        ElementName=orderWidth}"
-                                        Content="Filtro">
-                                    <Button.Flyout>
-                                        <Flyout>
-                                            <ItemsControl>
-                                                <CheckBox Name="brandCheckBox" IsChecked="True">Marca</CheckBox>
-                                                <CheckBox Name="modelCheckBox" IsChecked="True">Modelo</CheckBox>
-                                                <CheckBox Name="colorCheckBox" IsChecked="True">Color</CheckBox>
-                                                <CheckBox Name="sizeCheckBox" IsChecked="False">Tamaño</CheckBox>
-                                                <CheckBox Name="numCheckBox" IsChecked="False">Cantidad</CheckBox>
-                                                <CheckBox Name="costCheckBox" IsChecked="False">Costo</CheckBox>
-                                                <CheckBox Name="priceCheckBox" IsChecked="False">Precio</CheckBox>
-                                                <CheckBox Name="categoryCheckBox" IsChecked="False">Categoría</CheckBox>
-                                            </ItemsControl>
-                                        </Flyout>
-                                    </Button.Flyout>
-                                </Button>
-                            </Grid>
-                            <DataGridControl:DataGrid x:Name="DataGrid"
-                                                      Grid.Row="1"
-                                                      DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="True"
-                                                      DefaultOrderIndex="1"
-                                                      KeyUp="DataGrid_KeyUp"
-                                                      Tapped="addToCurrentSale">
-                                <DataGridControl:DataGrid.Columns>
-                                    <DataGridControl:DataGridTextColumn Width="3*"
-                                                                        Binding="{Binding Brand}"
-                                                                        Header="Marca" />
-                                    <DataGridControl:DataGridTextColumn Width="3*"
-                                                                        Binding="{Binding Model}"
-                                                                        Header="Modelo" />
-                                    <DataGridControl:DataGridTextColumn Width="3*"
-                                                                        Binding="{Binding Color}"
-                                                                        Header="Color" />
-                                    <DataGridControl:DataGridTextColumn Width="2*"
-                                                                        Binding="{Binding Size}"
-                                                                        Header="Tamaño" />
-                                    <DataGridControl:DataGridTextColumn Width="2*"
-                                                                        Binding="{Binding Num}"
-                                                                        Header="Cantidad" />
+                                                        </Flyout>
+                                                    </Button.Flyout>
+                                                </Button>
+                                            </StackPanel>
+                                            <Grid Grid.Row="1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock VerticalAlignment="Center"
+                                                           FontSize="16"
+                                                           Text="Marca" />
+                                                <AutoSuggestBox Name="editBrandBox"
+                                                                Grid.Column="1"
+                                                                VerticalAlignment="Center"
+                                                                PlaceholderText="Marca" />
+                                            </Grid>
+                                            <Grid Grid.Row="2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock VerticalAlignment="Center"
+                                                           FontSize="16"
+                                                           Text="Modelo" />
+                                                <AutoSuggestBox Name="editModelBox"
+                                                                Grid.Column="1"
+                                                                VerticalAlignment="Center"
+                                                                PlaceholderText="Modelo" />
+                                            </Grid>
+                                            <Grid Grid.Row="3">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock VerticalAlignment="Center"
+                                                           FontSize="16"
+                                                           Text="Color" />
+                                                <AutoSuggestBox Name="editColorBox"
+                                                                Grid.Column="1"
+                                                                VerticalAlignment="Center"
+                                                                PlaceholderText="Color" />
+                                            </Grid>
+                                            <Grid Grid.Row="4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock VerticalAlignment="Center"
+                                                           FontSize="16"
+                                                           Text="Tamano" />
+                                                <AutoSuggestBox Name="editSizeBox"
+                                                                Grid.Column="1"
+                                                                VerticalAlignment="Center"
+                                                                PlaceholderText="Tamano" />
+                                            </Grid>
+                                            <Grid Grid.Row="5">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock VerticalAlignment="Center"
+                                                           FontSize="16"
+                                                           Text="Numero" />
 
-                                    <DataGridControl:DataGridTextColumn Width="2*"
-                                                                        Binding="{Binding Price}"
-                                                                        Header="Precio" />
-                                    <DataGridControl:DataGridTextColumn Width="3*"
-                                                                        Binding="{Binding Category}"
-                                                                        Header="Categoria" />
-                                </DataGridControl:DataGrid.Columns>
-                                <DataGridControl:DataGrid.ItemDetailsTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Name="DetailsStackPanel" Visibility="Visible">
-                                            <TextBlock FontWeight="Bold" Text="Detalles: " />
-                                            <TextBlock Text="{Binding Id}" />
-                                            <TextBlock Text="{Binding Shortcut}" />
-                                            <TextBlock Text="{Binding DateAdded}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </DataGridControl:DataGrid.ItemDetailsTemplate>
-                            </DataGridControl:DataGrid>
-                        </Grid>
+                                                <TextBox Name="editNumBox"
+                                                         Grid.Column="1"
+                                                         VerticalAlignment="Center"
+                                                         PlaceholderText="Numero"
+                                                         TextChanging="checkDouble" />
+                                            </Grid>
+                                            <Grid Grid.Row="6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock VerticalAlignment="Center"
+                                                           FontSize="16"
+                                                           Text="Costo" />
+                                                <TextBox Name="editCostBox"
+                                                         Grid.Column="1"
+                                                         VerticalAlignment="Center"
+                                                         PlaceholderText="Costo"
+                                                         TextChanging="checkDouble" />
+                                            </Grid>
+                                            <Grid Grid.Row="7">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock VerticalAlignment="Center"
+                                                           FontSize="16"
+                                                           Text="Precio" />
+                                                <TextBox Name="editPriceBox"
+                                                         Grid.Column="1"
+                                                         VerticalAlignment="Center"
+                                                         PlaceholderText="Precio"
+                                                         TextChanging="checkDouble" />
+                                            </Grid>
+                                            <Grid Grid.Row="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock VerticalAlignment="Center"
+                                                           FontSize="16"
+                                                           Text="Categoria" />
+                                                <ComboBox Name="editCategoryBox"
+                                                          Grid.Column="1"
+                                                          HorizontalAlignment="Stretch"
+                                                          VerticalAlignment="Center"
+                                                          PlaceholderText="Categoria">
+                                                    <x:String>Item 1</x:String>
+                                                </ComboBox>
+                                            </Grid>
+
+                                        </Grid>
+                                    </ScrollViewer>
+                                    <Grid Grid.Row="1" Margin="0,0,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition x:Name="editgridColumnWidth" Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Button Grid.Column="0"
+                                                Width="{Binding ActualWidth,
+                                                                ElementName=editgridColumnWidth}"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Click="confirmEditButton_Click">
+                                            Agregar
+                                        </Button>
+                                        <Button Grid.Column="1"
+                                                Width="{Binding ActualWidth,
+                                                                ElementName=editgridColumnWidth}"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Click="cancelEditItem_Click">
+                                            Cancelar
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+
+                            </SplitView.Pane>
+                            <SplitView.Content>
+                                <Grid x:Name="ContentGrid">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="5*" />
+                                            <ColumnDefinition x:Name="orderWidth" Width="150" />
+                                        </Grid.ColumnDefinitions>
+                                        <AutoSuggestBox PlaceholderText="Buscar" TextChanged="textChanged" />
+                                        <Button Grid.Column="1"
+                                                Width="{Binding ActualWidth,
+                                                                ElementName=orderWidth}"
+                                                Content="Filtro">
+                                            <Button.Flyout>
+                                                <Flyout>
+                                                    <ItemsControl>
+                                                        <CheckBox Name="brandCheckBox" IsChecked="True">Marca</CheckBox>
+                                                        <CheckBox Name="modelCheckBox" IsChecked="True">Modelo</CheckBox>
+                                                        <CheckBox Name="colorCheckBox" IsChecked="True">Color</CheckBox>
+                                                        <CheckBox Name="sizeCheckBox" IsChecked="False">Tamaño</CheckBox>
+                                                        <CheckBox Name="numCheckBox" IsChecked="False">Cantidad</CheckBox>
+                                                        <CheckBox Name="costCheckBox" IsChecked="False">Costo</CheckBox>
+                                                        <CheckBox Name="priceCheckBox" IsChecked="False">Precio</CheckBox>
+                                                        <CheckBox Name="categoryCheckBox" IsChecked="False">Categoría</CheckBox>
+                                                    </ItemsControl>
+                                                </Flyout>
+                                            </Button.Flyout>
+                                        </Button>
+                                    </Grid>
+                                    <DataGridControl:DataGrid x:Name="DataGrid"
+                                                              Grid.Row="1"
+                                                              DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="True"
+                                                              DefaultOrderIndex="1"
+                                                              Tapped="addToCurrentSale">
+                                        <DataGridControl:DataGrid.Columns>
+                                            <DataGridControl:DataGridTextColumn Width="3*"
+                                                                                Binding="{Binding Brand}"
+                                                                                Header="Marca" />
+                                            <DataGridControl:DataGridTextColumn Width="3*"
+                                                                                Binding="{Binding Model}"
+                                                                                Header="Modelo" />
+                                            <DataGridControl:DataGridTextColumn Width="3*"
+                                                                                Binding="{Binding Color}"
+                                                                                Header="Color" />
+                                            <DataGridControl:DataGridTextColumn Width="2*"
+                                                                                Binding="{Binding Size}"
+                                                                                Header="Tamaño" />
+                                            <DataGridControl:DataGridTextColumn Width="2*"
+                                                                                Binding="{Binding Num}"
+                                                                                Header="Cantidad" />
+
+                                            <DataGridControl:DataGridTextColumn Width="2*"
+                                                                                Binding="{Binding Price,
+                                                                                                  Converter={StaticResource DoubleToStringFormatConverter}}"
+                                                                                Header="Precio" />
+                                            <DataGridControl:DataGridTextColumn Width="3*"
+                                                                                Binding="{Binding Category}"
+                                                                                Header="Categoria" />
+                                        </DataGridControl:DataGrid.Columns>
+                                        <DataGridControl:DataGrid.ItemDetailsTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Name="DetailsStackPanel" Visibility="Visible">
+                                                    <TextBlock FontWeight="Bold" Text="Detalles: " />
+                                                    <TextBlock Text="{Binding Id}" />
+                                                    <TextBlock Text="{Binding DateAdded, Converter={StaticResource DateToStringFormatConverter}}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridControl:DataGrid.ItemDetailsTemplate>
+                                    </DataGridControl:DataGrid>
+                                </Grid>
+
+                            </SplitView.Content>
+                        </SplitView>
+
                     </SplitView.Content>
                 </SplitView>
             </SplitView.Content>

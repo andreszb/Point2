@@ -15,6 +15,7 @@ using System.ComponentModel;
 using Point.Model;
 using MyToolkit.Controls;
 using System.Linq;
+using System.Globalization;
 
 namespace Point.Views
 {
@@ -24,7 +25,7 @@ namespace Point.Views
         private bool? brandCB {get;set;}
         private Data data = new Data();
         public CurrentSale currentSale = new CurrentSale();
-
+        private Item selectedItemToEdit;
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             UpdateTable();
@@ -58,8 +59,7 @@ namespace Point.Views
                     Num: int.Parse(NumBox.Text),
                     Cost: double.Parse(CostBox.Text),
                     Price: double.Parse(PriceBox.Text),
-                    Category: CategoryBox.SelectedItem.ToString(),
-                    Shortcut: ShortcutBox.Text != null ? ShortcutBox.Text : ""
+                    Category: CategoryBox.SelectedItem.ToString()
                     );
                 BrandBox.Text = String.Empty;
                 ModelBox.Text = String.Empty;
@@ -69,7 +69,6 @@ namespace Point.Views
                 CostBox.Text = String.Empty;
                 PriceBox.Text = String.Empty;
                 CategoryBox.SelectedItem = null;
-                ShortcutBox.Text = String.Empty;
                 UpdateTable();
             }
         }
@@ -113,7 +112,8 @@ namespace Point.Views
 
         private void updateNewSalePane()
         {
-            totalTextBlock.Text = currentSale.total;
+            CultureInfo culture = new CultureInfo("es-MX"); 
+            totalTextBlock.Text = String.Format(culture, "{0:C2}", currentSale.total);
             cartListView.ItemsSource = null;
             cartListView.ItemsSource = currentSale.items;
         }
@@ -122,11 +122,34 @@ namespace Point.Views
         {
             if (NewSaleSplitView.IsPaneOpen)
             {
+ 
                 var j = DataGrid.SelectedItem as Item;
                 currentSale.addItem(j);
                 DataGrid.SelectedItem = null;
                 updateNewSalePane();
-            } 
+            } else if (EditItemSplitView.IsPaneOpen)
+            {
+                if (DataGrid.SelectedItem != null)
+                {
+                    deleteItemFromDBButton.Visibility = Visibility.Visible;
+                    if (selectedItemToEdit != DataGrid.SelectedItem)
+                    {
+                        selectedItemToEdit = DataGrid.SelectedItem as Item;
+                        editBrandBox.Text = selectedItemToEdit.Brand;
+                        editModelBox.Text = selectedItemToEdit.Model;
+                        editColorBox.Text = selectedItemToEdit.Color;
+                        editSizeBox.Text = selectedItemToEdit.Size;
+                        editNumBox.Text = selectedItemToEdit.Num.ToString();
+                        editCostBox.Text = selectedItemToEdit.Cost.ToString();
+                        editPriceBox.Text = selectedItemToEdit.Price.ToString();
+                        editCategoryBox.PlaceholderText = selectedItemToEdit.Category;
+                    }
+                } else
+                {
+                    deleteItemFromDBButton.Visibility = Visibility.Collapsed;
+                }
+                
+            }
             
         }
 
@@ -151,7 +174,6 @@ namespace Point.Views
             CostBox.Text = String.Empty;
             PriceBox.Text = String.Empty;
             CategoryBox.SelectedItem = null;
-            ShortcutBox.Text = String.Empty;
         }
 
         private void cancelNewSale_Click(object sender, RoutedEventArgs e)
@@ -176,9 +198,62 @@ namespace Point.Views
             }
         }
 
-        private void DataGrid_KeyUp(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        private void editItemButton_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("keyup");
+            EditItemSplitView.IsPaneOpen = !EditItemSplitView.IsPaneOpen;
+
+        }
+
+        private void confirmEditButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (selectedItemToEdit != null)
+            {
+                selectedItemToEdit.Brand = editBrandBox.Text;
+                selectedItemToEdit.Model = editModelBox.Text;
+                selectedItemToEdit.Color = editColorBox.Text;
+                selectedItemToEdit.Size = editSizeBox.Text;
+                selectedItemToEdit.Num = int.Parse(editNumBox.Text);
+                selectedItemToEdit.Cost = double.Parse(editCostBox.Text);
+                selectedItemToEdit.Price = double.Parse(editPriceBox.Text);
+                selectedItemToEdit.Category = editCategoryBox.SelectedItem == null ? editCategoryBox.PlaceholderText : editCategoryBox.SelectedItem.ToString();
+                data.updateItem(selectedItemToEdit);
+                UpdateTable();
+            }
+        }
+
+        private void cancelEditItem_Click(object sender, RoutedEventArgs e)
+        {
+            selectedItemToEdit = null;
+            editBrandBox.Text = String.Empty;
+            editBrandBox.Text = String.Empty;
+            editModelBox.Text = String.Empty;
+            editColorBox.Text = String.Empty;
+            editSizeBox.Text = String.Empty;
+            editNumBox.Text = String.Empty;
+            editCostBox.Text = String.Empty;
+            editPriceBox.Text = String.Empty;
+            editCategoryBox.SelectedItem = null;
+            editCategoryBox.PlaceholderText = "Categoria";
+            DataGrid.SelectedItem = null;
+        }
+
+        private void deleteItemFromDBButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (selectedItemToEdit != null)
+            {
+                data.deleteItem(selectedItemToEdit);
+                cancelEditItem_Click(null, null);
+                UpdateTable();
+                deleteFlyout.Hide();
+            
+            }
+        }
+
+        private void addNewSaleButton_Click(object sender, RoutedEventArgs e)
+        {
+            data.addNewSale(currentSale);
+            cancelNewSale_Click(null, null);
+            
         }
     }
 

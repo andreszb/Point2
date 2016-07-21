@@ -8,6 +8,7 @@ using SQLite.Net.Attributes;
 using SQLite.Net;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace Point.Model
 {
@@ -37,12 +38,11 @@ namespace Point.Model
                SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
             {
                 var query = db.Table<Item>();
-
                 return new List<Item>(query);
             }
         }
 
-        public void addNewItem(string Brand, string Model, string Color, string Size, int Num, double Cost, double Price, string Category, string Shortcut)
+        public void addNewItem(string Brand, string Model, string Color, string Size, int Num, double Cost, double Price, string Category)
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
                SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
@@ -57,11 +57,29 @@ namespace Point.Model
                     Cost = Cost,
                     Price = Price,
                     Category = Category,
-                    Shortcut = Shortcut,
                     DateAdded = DateTime.Now
                 });
             }
 
+        }
+
+        public void updateItem(Item item)
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                db.Update(item);
+            }
+
+        }
+
+        public void deleteItem(Item item)
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                db.Delete(item);
+            }
         }
 
         public void addNewDebt(string Name, double Debt, string Info, string Items)
@@ -79,10 +97,19 @@ namespace Point.Model
             }
         }
 
-
-
-
-
+        public void addNewSale(CurrentSale sale)
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+              SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                var s = db.Insert(new Sale()
+                {
+                    Items = sale.getItems(),
+                    Total = sale.total,
+                    Date = DateTime.Now
+                });
+            }
+        }
 
     }
 
@@ -134,8 +161,6 @@ namespace Point.Model
         public String Category { get; set; }
         [MaxLength(100)]
         [NotNull]
-        public String Shortcut { get; set; }
-        [NotNull]
         public DateTime DateAdded { get; set; }
     }
 
@@ -176,6 +201,17 @@ namespace Point.Model
 
         }
 
+        public string getItems()
+        {
+            string returnString = "";
+            CultureInfo culture = new CultureInfo("es-MX");
+            foreach (uniqueItem ui in items)
+            {
+                returnString += ui.qty + ui.item.Model + "\t" + String.Format(culture, "{0:C2}", ui.item.Price) + "\n";
+            }
+            return returnString;
+        }
+
 
 
         public Customer customer
@@ -184,9 +220,9 @@ namespace Point.Model
             set { newCustomer = value; }
         }
 
-        public string total
+        public double total
         {
-            get { return "$" + (items.Sum(x => ((x as uniqueItem).item.Price * (x as uniqueItem).intQty))).ToString(); }
+            get { return (items.Sum(x => ((x as uniqueItem).item.Price * (x as uniqueItem).intQty))); }
         }
 
         public bool addItem(Item item)
