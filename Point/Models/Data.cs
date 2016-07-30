@@ -54,68 +54,25 @@ namespace Point.Model
             }
         }
 
-        public void addNewItem(string Brand, string Model, string Color, string Size, int Num, double Cost, double Price, string Category)
+        public void addNewItem(string Type, string Size, string Code, string Brand, double Price, int Num)
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
                SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
             {
                 var s = db.Insert(new Item()
                 {
-                    Brand = Brand,
-                    Model = Model,
-                    Color = Color,
+                    Type = Type,
                     Size = Size,
-                    Num = Num,
-                    Cost = Cost,
+                    Code = Code,
+                    Brand = Brand,
                     Price = Price,
-                    Category = Category,
+                    Num = Num,
                     DateAdded = DateTime.Now
                 });
             }
 
         }
 
-        public void addNewItemToSaleByDay(Item item)
-        {
-            using (var db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-            {
-                var date = DateTime.Now;
-                var stringDate = date.ToLocalTime().ToString("s").Substring(2, 8);
-                SalesByDay today = (from s in db.Table<SalesByDay>() where s.Day == stringDate select s).FirstOrDefault();
-                if (today == null)
-                {
-                    db.Insert(new SalesByDay() { Day = stringDate, ItemsString = "\n1×"+item.Description()+"\n", Total = item.Price });
-                } else
-                {
-                    if (today.ItemsString.Contains(item.Description()))
-                    {
-                        int index = today.ItemsString.IndexOf(item.Description());
-                        string numAsString = "";
-                        int i;
-                        for (i = index-2; !today.ItemsString[i].Equals('\n'); i--)
-                        {
-                            numAsString += today.ItemsString[i];
-                        }
-                        string firstString = today.ItemsString.Substring(0, i+1);
-                        string secondString = today.ItemsString.Substring(index-1);
-                        int newNum = int.Parse(numAsString);
-                        newNum++;
-                        string newNumAsString = newNum.ToString();
-                        today.ItemsString = firstString + newNumAsString + secondString;
-                        Debug.WriteLine(today.ItemsString);
-                        
-                    } else
-                    {
-                        today.ItemsString += "1×" + item.Description() + "\n";
-                    }
-                    today.Total += item.Price;
-                    db.Update(today);
-
-                }
-
-            }
-        }
 
         public void updateItem(Item item)
         {
@@ -166,8 +123,19 @@ namespace Point.Model
                     Date = DateTime.Now
                 });
             }
+            sale.addCurrentSaleToDB();
         }
 
+        public List<ItemAsStrings> getSalesByDay(DateTime date)
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+                  SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                var stringDate = date.ToLocalTime().ToString("s").Substring(2, 8);
+                SalesByDay today = (from s in db.Table<SalesByDay>() where s.Day == stringDate select s).FirstOrDefault();
+                return today != null ? today.getList() : null;
+            }
+        }     
     }
 
     public partial class Customer
@@ -197,33 +165,38 @@ namespace Point.Model
         public Int64 Id { get; set; }
         [MaxLength(100)]
         [NotNull]
-        public String Brand { get; set; }
-        [MaxLength(100)]
-        [NotNull]
-        public String Model { get; set; }
-        [MaxLength(100)]
-        [NotNull]
-        public String Color { get; set; }
+        public String Type { get; set; }
         [MaxLength(100)]
         [NotNull]
         public String Size { get; set; }
+        [MaxLength(100)]
+        [NotNull]
+        public String Code { get; set; }
+        [MaxLength(100)]
+        [NotNull]
+        public String Brand { get; set; }
+        [NotNull]
+        public Double Price { get; set; }
         [NotNull]
         public Int32 Num { get; set; }
         [NotNull]
-        public Double Cost { get; set; }
-        [NotNull]
-        public Double Price { get; set; }
-        [MaxLength(100)]
-        [NotNull]
-        public String Category { get; set; }
-        [MaxLength(100)]
-        [NotNull]
         public DateTime DateAdded { get; set; }
-
-        public string Description()
+        [Ignore]
+        public string Description
         {
-            var culture = new CultureInfo("es-MX");
-            return Brand + "\t" + Model + "\t" + Color + "\t" + Size + "\t" + String.Format(culture, "{0:C2}", Price);
+            get
+            {
+                var culture = new CultureInfo("es-MX");
+                return Type + "\t" + Size + "\t" + Code + "\t" + Brand + "\t" + String.Format(culture, "{0:C2}", Price);
+            }
+        }
+        public string ShortDescription
+        {
+            get
+            {
+                var culture = new CultureInfo("es-MX");
+                return Type + " " + Size + " " + Code + " " + Brand + " ";
+            }
         }
     }
 
@@ -256,26 +229,112 @@ namespace Point.Model
 
         [NotNull]
         public Double Total { get; set; }
+
+        public List<ItemAsStrings> getList()
+        {
+            List<ItemAsStrings> list = new List<ItemAsStrings>();
+            var str = ItemsString;
+            string[] rows = str.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string s in rows)
+            {
+                string[] cols = s.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
+                list.Add(new ItemAsStrings() { qty = cols[0], brand = cols[1], model = cols[2], color = cols[3], size = cols[4], price = cols[5] });
+            }
+            return list;
+        }
+
     }
+
+    public class ItemAsStrings
+    {
+        public string qty { get; set; }
+        public string brand { get; set; }
+        public string model { get; set; }
+        public string color { get; set; }
+        public string size { get; set; }
+        public string price { get; set; }
+
+    }
+
 
     public class CurrentSale
     {
+        
         public CurrentSale()
         {
             items = new ObservableCollection<uniqueItem>();
         }
 
+        public  void addCurrentSaleToDB()
+        {
+            foreach (uniqueItem ui in items)
+            {
+                ui.addUniqueItemToDB();
+            }
+        }
 
         public ObservableCollection<uniqueItem> items { get; set; }
         private Customer newCustomer = new Customer();
 
         public class uniqueItem
         {
+            string path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
+               "db.sqlite");
             private int _qty = 1;
             public Item item { get; set; }
             public string qty { get { return _qty.ToString() + "×"; } }
             public int intQty { get { return _qty; } set { _qty = value; } }
             public void incrementQty() { _qty++; }
+
+            public void addUniqueItemToDB()
+            {
+                for(int i = 0; i < intQty; i++)
+                {
+                    addNewItemToSaleByDay(item);
+                }
+            }
+
+            private void addNewItemToSaleByDay(Item item)
+            {
+                using (var db = new SQLite.Net.SQLiteConnection(new
+                   SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+                {
+                    var date = DateTime.Now;
+                    var stringDate = date.ToLocalTime().ToString("s").Substring(2, 8);
+                    SalesByDay today = (from s in db.Table<SalesByDay>() where s.Day == stringDate select s).FirstOrDefault();
+                    if (today == null)
+                    {
+                        db.Insert(new SalesByDay() { Day = stringDate, ItemsString = "\n1\t" + item.Description, Total = item.Price });
+                    }
+                    else
+                    {
+                        if (today.ItemsString.Contains(item.Description))
+                        {
+                            int index = today.ItemsString.IndexOf(item.Description);
+                            string numAsString = "";
+                            int i;
+                            for (i = index - 2; !today.ItemsString[i].Equals('\n'); i--)
+                            {
+                                numAsString += today.ItemsString[i];
+                            }
+                            string firstString = today.ItemsString.Substring(0, i + 1);
+                            string secondString = today.ItemsString.Substring(index - 1);
+                            int newNum = int.Parse(numAsString);
+                            newNum++;
+                            string newNumAsString = newNum.ToString();
+                            today.ItemsString = firstString + newNumAsString + secondString;
+
+                        }
+                        else
+                        {
+                            today.ItemsString += "\n1\t" + item.Description;
+                        }
+                        today.Total += item.Price;
+                        db.Update(today);
+                    }
+                }
+            }
+
 
         }
 
@@ -285,7 +344,7 @@ namespace Point.Model
             CultureInfo culture = new CultureInfo("es-MX");
             foreach (uniqueItem ui in items)
             {
-                returnString += ui.qty + ui.item.Description();// ui.item.Model + "\t" + String.Format(culture, "{0:C2}", ui.item.Price) + "\n";
+                returnString += ui.qty + ui.item.Description;
             }
             return returnString;
         }

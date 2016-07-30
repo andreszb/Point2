@@ -9,11 +9,13 @@ using SQLite.Net.Attributes;
 using System.Diagnostics;
 using MyToolkit.Controls;
 using Point.Model;
+using System.Threading.Tasks;
 
 namespace Point.Views
 {
     public sealed partial class Sales : Page
     {
+        bool dataGridIsVisible = true;
         private Data data = new Data();
 
         public Sales()
@@ -29,6 +31,7 @@ namespace Point.Views
         private void UpdateTable()
         {
             DataGrid.ItemsSource = data.getSales();
+            DataGridDay.ItemsSource = data.getSalesByDay(DateTime.Now.ToLocalTime());
         }
 
         private void textChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -48,6 +51,23 @@ namespace Point.Views
             //}
         }
 
+       
+
+       
+
+        private void CalendarView_SelectedDatesChanged(CalendarView sender, CalendarViewSelectedDatesChangedEventArgs args)
+        {
+            if(sender.SelectedDates.Count > 0) DataGridDay.ItemsSource = data.getSalesByDay(args.AddedDates[0].LocalDateTime);
+            DataGridDay.Visibility = Visibility.Visible;
+            salesViewGrid.Visibility = Visibility.Collapsed;
+
+        }
+
+        private void AllSales_Click(object sender, RoutedEventArgs e)
+        {
+            DataGridDay.Visibility = Visibility.Collapsed;
+            salesViewGrid.Visibility = Visibility.Visible;
+        }
     }
 
 }

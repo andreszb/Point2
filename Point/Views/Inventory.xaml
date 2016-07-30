@@ -115,53 +115,39 @@
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="*" />
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="*" />
+                                
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock VerticalAlignment="Center" FontSize="36">Nuevo articulo</TextBlock>
 
-                            <AutoSuggestBox Name="BrandBox"
+                            <AutoSuggestBox Name="TypeBox"
                                             Grid.Row="1"
                                             VerticalAlignment="Center"
-                                            PlaceholderText="Marca" />
-                            <AutoSuggestBox Name="ModelBox"
+                                            PlaceholderText="Prenda" />
+                            <AutoSuggestBox Name="SizeBox"
                                             Grid.Row="2"
                                             VerticalAlignment="Center"
-                                            PlaceholderText="Modelo" />
-                            <AutoSuggestBox Name="ColorBox"
+                                            PlaceholderText="Tamano" />
+                            <AutoSuggestBox Name="CodeBox"
                                             Grid.Row="3"
                                             VerticalAlignment="Center"
                                             PlaceholderText="Color" />
-                            <AutoSuggestBox Name="SizeBox"
+                            <AutoSuggestBox Name="BrandBox"
                                             Grid.Row="4"
                                             VerticalAlignment="Center"
-                                            PlaceholderText="Tamano" />
-                            <TextBox Name="NumBox"
-                                     Grid.Row="5"
-                                     VerticalAlignment="Center"
-                                     PlaceholderText="Numero"
-                                     TextChanging="checkDouble" />
-                            <TextBox Name="CostBox"
-                                     Grid.Row="6"
-                                     VerticalAlignment="Center"
-                                     PlaceholderText="Costo"
-                                     TextChanging="checkDouble" />
+                                            PlaceholderText="Marca" />
                             <TextBox Name="PriceBox"
-                                     Grid.Row="7"
+                                     Grid.Row="5"
                                      VerticalAlignment="Center"
                                      PlaceholderText="Precio"
                                      TextChanging="checkDouble" />
-                            <ComboBox Name="CategoryBox"
-                                      Grid.Row="8"
-                                      HorizontalAlignment="Stretch"
-                                      VerticalAlignment="Center"
-                                      PlaceholderText="Categoria">
-                                <x:String>Item 1</x:String>
-                            </ComboBox>
-
+                            <TextBox Name="NumBox"
+                                     Grid.Row="6"
+                                     VerticalAlignment="Center"
+                                     PlaceholderText="Numero"
+                                     TextChanging="checkDouble" />
                         </Grid>
                     </ScrollViewer>
                     <Grid Grid.Row="1" Margin="0,0,0,0">
@@ -229,9 +215,9 @@
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Grid.Column="0" Orientation="Horizontal">
                                                         <TextBlock Text="{Binding qty}" />
-                                                        <TextBlock Text="{Binding item.Model}" />
+                                                        <TextBlock Text="{Binding item.ShortDescription}" />
                                                     </StackPanel>
-                                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                                                         <TextBlock Text="{Binding item.Price, Converter={StaticResource DoubleToStringFormatConverter}}" />
                                                     </StackPanel>
                                                 </Grid>
@@ -298,8 +284,6 @@
                                                 <RowDefinition Height="*" />
                                                 <RowDefinition Height="*" />
                                                 <RowDefinition Height="*" />
-                                                <RowDefinition Height="*" />
-                                                <RowDefinition Height="*" />
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
@@ -336,11 +320,11 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock VerticalAlignment="Center"
                                                            FontSize="16"
-                                                           Text="Marca" />
-                                                <AutoSuggestBox Name="editBrandBox"
+                                                           Text="Prenda" />
+                                                <AutoSuggestBox Name="EditTypeBox"
                                                                 Grid.Column="1"
                                                                 VerticalAlignment="Center"
-                                                                PlaceholderText="Marca" />
+                                                                PlaceholderText="Prenda" />
                                             </Grid>
                                             <Grid Grid.Row="2">
                                                 <Grid.ColumnDefinitions>
@@ -349,8 +333,8 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock VerticalAlignment="Center"
                                                            FontSize="16"
-                                                           Text="Modelo" />
-                                                <AutoSuggestBox Name="editModelBox"
+                                                           Text="Tamano" />
+                                                <AutoSuggestBox Name="EditSizeBox"
                                                                 Grid.Column="1"
                                                                 VerticalAlignment="Center"
                                                                 PlaceholderText="Modelo" />
@@ -362,11 +346,11 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock VerticalAlignment="Center"
                                                            FontSize="16"
-                                                           Text="Color" />
-                                                <AutoSuggestBox Name="editColorBox"
+                                                           Text="Modelo" />
+                                                <AutoSuggestBox Name="EditCodeBox"
                                                                 Grid.Column="1"
                                                                 VerticalAlignment="Center"
-                                                                PlaceholderText="Color" />
+                                                                PlaceholderText="Modelo" />
                                             </Grid>
                                             <Grid Grid.Row="4">
                                                 <Grid.ColumnDefinitions>
@@ -375,11 +359,11 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock VerticalAlignment="Center"
                                                            FontSize="16"
-                                                           Text="Tamano" />
-                                                <AutoSuggestBox Name="editSizeBox"
+                                                           Text="Marca" />
+                                                <AutoSuggestBox Name="EditBrandBox"
                                                                 Grid.Column="1"
                                                                 VerticalAlignment="Center"
-                                                                PlaceholderText="Tamano" />
+                                                                PlaceholderText="Marca" />
                                             </Grid>
                                             <Grid Grid.Row="5">
                                                 <Grid.ColumnDefinitions>
@@ -388,12 +372,11 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock VerticalAlignment="Center"
                                                            FontSize="16"
-                                                           Text="Numero" />
-
-                                                <TextBox Name="editNumBox"
+                                                           Text="Precio" />
+                                                <TextBox Name="EditPriceBox"
                                                          Grid.Column="1"
                                                          VerticalAlignment="Center"
-                                                         PlaceholderText="Numero"
+                                                         PlaceholderText="Precio"
                                                          TextChanging="checkDouble" />
                                             </Grid>
                                             <Grid Grid.Row="6">
@@ -403,44 +386,14 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock VerticalAlignment="Center"
                                                            FontSize="16"
-                                                           Text="Costo" />
-                                                <TextBox Name="editCostBox"
-                                                         Grid.Column="1"
-                                                         VerticalAlignment="Center"
-                                                         PlaceholderText="Costo"
-                                                         TextChanging="checkDouble" />
-                                            </Grid>
-                                            <Grid Grid.Row="7">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="90" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock VerticalAlignment="Center"
-                                                           FontSize="16"
-                                                           Text="Precio" />
-                                                <TextBox Name="editPriceBox"
-                                                         Grid.Column="1"
-                                                         VerticalAlignment="Center"
-                                                         PlaceholderText="Precio"
-                                                         TextChanging="checkDouble" />
-                                            </Grid>
-                                            <Grid Grid.Row="8">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="90" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock VerticalAlignment="Center"
-                                                           FontSize="16"
-                                                           Text="Categoria" />
-                                                <ComboBox Name="editCategoryBox"
-                                                          Grid.Column="1"
-                                                          HorizontalAlignment="Stretch"
-                                                          VerticalAlignment="Center"
-                                                          PlaceholderText="Categoria">
-                                                    <x:String>Item 1</x:String>
-                                                </ComboBox>
-                                            </Grid>
+                                                           Text="Numero" />
 
+                                                <TextBox Name="EditNumBox"
+                                                         Grid.Column="1"
+                                                         VerticalAlignment="Center"
+                                                         PlaceholderText="Numero"
+                                                         TextChanging="checkDouble" />
+                                            </Grid>
                                         </Grid>
                                     </ScrollViewer>
                                     <Grid Grid.Row="1" Margin="0,0,0,0">
@@ -487,14 +440,12 @@
                                             <Button.Flyout>
                                                 <Flyout>
                                                     <ItemsControl>
-                                                        <CheckBox Name="brandCheckBox" IsChecked="True">Marca</CheckBox>
-                                                        <CheckBox Name="modelCheckBox" IsChecked="True">Modelo</CheckBox>
-                                                        <CheckBox Name="colorCheckBox" IsChecked="True">Color</CheckBox>
-                                                        <CheckBox Name="sizeCheckBox" IsChecked="False">Tamaño</CheckBox>
-                                                        <CheckBox Name="numCheckBox" IsChecked="False">Cantidad</CheckBox>
-                                                        <CheckBox Name="costCheckBox" IsChecked="False">Costo</CheckBox>
-                                                        <CheckBox Name="priceCheckBox" IsChecked="False">Precio</CheckBox>
-                                                        <CheckBox Name="categoryCheckBox" IsChecked="False">Categoría</CheckBox>
+                                                        <CheckBox Name="TypeCheckBox" IsChecked="True">Prenda</CheckBox>
+                                                        <CheckBox Name="SizeCheckBox" IsChecked="True">Tamano</CheckBox>
+                                                        <CheckBox Name="CodeCheckBox" IsChecked="True">Modelo</CheckBox>
+                                                        <CheckBox Name="BrandCheckBox" IsChecked="False">Marca</CheckBox>
+                                                        <CheckBox Name="PriceCheckBox" IsChecked="False">Precio</CheckBox>
+                                                        <CheckBox Name="NumCheckBox" IsChecked="False">Cantidad</CheckBox>
                                                     </ItemsControl>
                                                 </Flyout>
                                             </Button.Flyout>
@@ -506,29 +457,25 @@
                                                               DefaultOrderIndex="1"
                                                               Tapped="addToCurrentSale">
                                         <DataGridControl:DataGrid.Columns>
+                                            <DataGridControl:DataGridTextColumn Width="4*"
+                                                                                Binding="{Binding Type}"
+                                                                                Header="Prenda" />
+                                            <DataGridControl:DataGridTextColumn Width="2*"
+                                                                                Binding="{Binding Size}"
+                                                                                Header="Tamano" />
+                                            <DataGridControl:DataGridTextColumn Width="2*"
+                                                                                Binding="{Binding Code}"
+                                                                                Header="Modelo" />
                                             <DataGridControl:DataGridTextColumn Width="3*"
                                                                                 Binding="{Binding Brand}"
                                                                                 Header="Marca" />
                                             <DataGridControl:DataGridTextColumn Width="3*"
-                                                                                Binding="{Binding Model}"
-                                                                                Header="Modelo" />
-                                            <DataGridControl:DataGridTextColumn Width="3*"
-                                                                                Binding="{Binding Color}"
-                                                                                Header="Color" />
-                                            <DataGridControl:DataGridTextColumn Width="2*"
-                                                                                Binding="{Binding Size}"
-                                                                                Header="Tamaño" />
-                                            <DataGridControl:DataGridTextColumn Width="2*"
-                                                                                Binding="{Binding Num}"
-                                                                                Header="Cantidad" />
-
-                                            <DataGridControl:DataGridTextColumn Width="2*"
                                                                                 Binding="{Binding Price,
                                                                                                   Converter={StaticResource DoubleToStringFormatConverter}}"
                                                                                 Header="Precio" />
-                                            <DataGridControl:DataGridTextColumn Width="3*"
-                                                                                Binding="{Binding Category}"
-                                                                                Header="Categoria" />
+                                            <DataGridControl:DataGridTextColumn Width="2*"
+                                                                                Binding="{Binding Num}"
+                                                                                Header="Cantidad" />
                                         </DataGridControl:DataGrid.Columns>
                                         <DataGridControl:DataGrid.ItemDetailsTemplate>
                                             <DataTemplate>

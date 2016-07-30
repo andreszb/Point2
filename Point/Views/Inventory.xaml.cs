@@ -34,20 +34,7 @@ namespace Point.Views
 
         public Inventory()
         {
-            this.InitializeComponent();
-            data.addNewItemToSaleByDay(new Item()
-            {
-                Brand = "hdfsdf",
-                Model = "blatyrtygsbla",
-                Color = "pop",
-                Size = "M",
-                Num = 1,
-                Cost = 3,
-                Price = 5,
-                Category = "Caca",
-                DateAdded = DateTime.Now
-            }
-            );
+            this.InitializeComponent();          
         }
 
         private void UpdateTable()
@@ -62,50 +49,32 @@ namespace Point.Views
 
         private void addNewItem_Click(object sender, RoutedEventArgs e)
         {
-            if (vStr(BrandBox.Text) && vStr(ModelBox.Text) && vStr(ColorBox.Text) && vStr(SizeBox.Text) && CategoryBox.SelectedItem != null && vStr(NumBox.Text) && vStr(PriceBox.Text) && vStr(CostBox.Text))
+            if (!string.IsNullOrWhiteSpace(TypeBox.Text) && !string.IsNullOrWhiteSpace(SizeBox.Text) && !string.IsNullOrWhiteSpace(CodeBox.Text) && !string.IsNullOrWhiteSpace(BrandBox.Text)  && !string.IsNullOrWhiteSpace(PriceBox.Text) && !string.IsNullOrWhiteSpace(NumBox.Text))
             {
                 data.addNewItem(
-                    Brand: BrandBox.Text,
-                    Model: ModelBox.Text,
-                    Color: ColorBox.Text,
+                    Type: TypeBox.Text,
                     Size: SizeBox.Text,
-                    Num: int.Parse(NumBox.Text),
-                    Cost: double.Parse(CostBox.Text),
+                    Code: CodeBox.Text,
+                    Brand: BrandBox.Text,
                     Price: double.Parse(PriceBox.Text),
-                    Category: CategoryBox.SelectedItem.ToString()
-                    );
-                BrandBox.Text = String.Empty;
-                ModelBox.Text = String.Empty;
-                ColorBox.Text = String.Empty;
-                SizeBox.Text = String.Empty;
-                NumBox.Text = String.Empty;
-                CostBox.Text = String.Empty;
-                PriceBox.Text = String.Empty;
-                CategoryBox.SelectedItem = null;
+                    Num: int.Parse(NumBox.Text)
+                );
+                cancelNewItem_Click(null, null);                
                 UpdateTable();
             }
         }
-
-        public bool vStr(string text)
-        {
-            return !string.IsNullOrWhiteSpace(text);
-        }
-        
-
+      
         private void textChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
                 DataGrid.SetFilter<Item>(p =>
-                        (p.Brand.ToLower().Contains(sender.Text.ToLower())&&(bool)brandCheckBox.IsChecked) ||
-                        (p.Model.ToLower().Contains(sender.Text.ToLower()) && (bool)modelCheckBox.IsChecked) ||
-                        (p.Color.ToLower().Contains(sender.Text.ToLower()) && (bool)colorCheckBox.IsChecked) ||
-                        (p.Size.ToLower().Contains(sender.Text.ToLower()) && (bool)sizeCheckBox.IsChecked) ||
-                        (p.Num.ToString().Contains(sender.Text.ToLower()) && (bool)numCheckBox.IsChecked) ||
-                        (p.Cost.ToString().Contains(sender.Text.ToLower()) && (bool)costCheckBox.IsChecked) ||
-                        (p.Price.ToString().Contains(sender.Text.ToLower()) && (bool)priceCheckBox.IsChecked) ||
-                        (p.Category.ToLower().Contains(sender.Text.ToLower()) && (bool)categoryCheckBox.IsChecked));
-
+                        (p.Type.ToLower().Contains(sender.Text.ToLower())&&(bool)TypeCheckBox.IsChecked) ||
+                        (p.Size.ToLower().Contains(sender.Text.ToLower()) && (bool)SizeCheckBox.IsChecked) ||
+                        (p.Code.ToLower().Contains(sender.Text.ToLower()) && (bool)CodeCheckBox.IsChecked) ||
+                        (p.Brand.ToLower().Contains(sender.Text.ToLower()) && (bool)BrandCheckBox.IsChecked) ||
+                        (p.Num.ToString().Contains(sender.Text.ToLower()) && (bool)NumCheckBox.IsChecked) ||
+                        (p.Price.ToString().Contains(sender.Text.ToLower()) && (bool)PriceCheckBox.IsChecked));
             }
         }
 
@@ -116,12 +85,8 @@ namespace Point.Views
             {
                 cancelNewSale_Click(null,null);
                 DataGrid.SelectedItem = null;
-            }
-           
+            }           
         }
-
-
-        
 
         private void updateNewSalePane()
         {
@@ -148,14 +113,12 @@ namespace Point.Views
                     if (selectedItemToEdit != DataGrid.SelectedItem)
                     {
                         selectedItemToEdit = DataGrid.SelectedItem as Item;
-                        editBrandBox.Text = selectedItemToEdit.Brand;
-                        editModelBox.Text = selectedItemToEdit.Model;
-                        editColorBox.Text = selectedItemToEdit.Color;
-                        editSizeBox.Text = selectedItemToEdit.Size;
-                        editNumBox.Text = selectedItemToEdit.Num.ToString();
-                        editCostBox.Text = selectedItemToEdit.Cost.ToString();
-                        editPriceBox.Text = selectedItemToEdit.Price.ToString();
-                        editCategoryBox.PlaceholderText = selectedItemToEdit.Category;
+                        EditTypeBox.Text = selectedItemToEdit.Type;
+                        EditSizeBox.Text = selectedItemToEdit.Size;
+                        EditCodeBox.Text = selectedItemToEdit.Code;
+                        EditBrandBox.Text = selectedItemToEdit.Brand;
+                        EditPriceBox.Text = selectedItemToEdit.Price.ToString();
+                        EditNumBox.Text = selectedItemToEdit.Num.ToString();
                     }
                 } else
                 {
@@ -179,14 +142,12 @@ namespace Point.Views
 
         private void cancelNewItem_Click(object sender, RoutedEventArgs e)
         {
-            BrandBox.Text = String.Empty;
-            ModelBox.Text = String.Empty;
-            ColorBox.Text = String.Empty;
+            TypeBox.Text = String.Empty;
             SizeBox.Text = String.Empty;
-            NumBox.Text = String.Empty;
-            CostBox.Text = String.Empty;
+            CodeBox.Text = String.Empty;
+            BrandBox.Text = String.Empty;
             PriceBox.Text = String.Empty;
-            CategoryBox.SelectedItem = null;
+            NumBox.Text = String.Empty;            
         }
 
         private void cancelNewSale_Click(object sender, RoutedEventArgs e)
@@ -221,14 +182,12 @@ namespace Point.Views
         {
             if (selectedItemToEdit != null)
             {
-                selectedItemToEdit.Brand = editBrandBox.Text;
-                selectedItemToEdit.Model = editModelBox.Text;
-                selectedItemToEdit.Color = editColorBox.Text;
-                selectedItemToEdit.Size = editSizeBox.Text;
-                selectedItemToEdit.Num = int.Parse(editNumBox.Text);
-                selectedItemToEdit.Cost = double.Parse(editCostBox.Text);
-                selectedItemToEdit.Price = double.Parse(editPriceBox.Text);
-                selectedItemToEdit.Category = editCategoryBox.SelectedItem == null ? editCategoryBox.PlaceholderText : editCategoryBox.SelectedItem.ToString();
+                selectedItemToEdit.Type = EditTypeBox.Text;
+                selectedItemToEdit.Size = EditSizeBox.Text;
+                selectedItemToEdit.Code = EditCodeBox.Text;
+                selectedItemToEdit.Size = EditSizeBox.Text;
+                selectedItemToEdit.Price = double.Parse(EditPriceBox.Text);
+                selectedItemToEdit.Num = int.Parse(EditNumBox.Text);
                 data.updateItem(selectedItemToEdit);
                 UpdateTable();
             }
@@ -237,16 +196,12 @@ namespace Point.Views
         private void cancelEditItem_Click(object sender, RoutedEventArgs e)
         {
             selectedItemToEdit = null;
-            editBrandBox.Text = String.Empty;
-            editBrandBox.Text = String.Empty;
-            editModelBox.Text = String.Empty;
-            editColorBox.Text = String.Empty;
-            editSizeBox.Text = String.Empty;
-            editNumBox.Text = String.Empty;
-            editCostBox.Text = String.Empty;
-            editPriceBox.Text = String.Empty;
-            editCategoryBox.SelectedItem = null;
-            editCategoryBox.PlaceholderText = "Categoria";
+            EditTypeBox.Text = String.Empty;
+            EditSizeBox.Text = String.Empty;
+            EditCodeBox.Text = String.Empty;
+            EditBrandBox.Text = String.Empty;
+            EditPriceBox.Text = String.Empty;
+            EditNumBox.Text = String.Empty;          
             DataGrid.SelectedItem = null;
         }
 
