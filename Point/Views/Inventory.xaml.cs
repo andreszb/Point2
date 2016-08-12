@@ -102,10 +102,17 @@ namespace Point.Views
             {
  
                 var j = DataGrid.SelectedItem as Item;
-                currentSale.addItem(j);
+                if (j != null) {
+                    if (j.Num > 0)
+                    {
+                        //var itemInSale = currentSale.items.First(x => (x as CurrentSale.uniqueItem).item == j);
+                        currentSale.addItem(j);
+                        updateNewSalePane();
+                    }
+                }
                 DataGrid.SelectedItem = null;
-                updateNewSalePane();
-            } else if (EditItemSplitView.IsPaneOpen)
+            }
+            else if (EditItemSplitView.IsPaneOpen)
             {
                 if (DataGrid.SelectedItem != null)
                 {
@@ -153,6 +160,9 @@ namespace Point.Views
         private void cancelNewSale_Click(object sender, RoutedEventArgs e)
         {
             currentSale = new CurrentSale();
+            SalePaneTitle.Text = "Nueva venta";
+            ClientNameTextBlock.Text = String.Empty;
+            ClientNameTextBlock.Visibility = Visibility.Collapsed;
             updateNewSalePane();
         }
 
@@ -221,8 +231,23 @@ namespace Point.Views
         {
             data.addNewSale(currentSale);
             cancelNewSale_Click(null, null);
-            
+            UpdateTable();
         }
+
+        private async void CustomerButton_Click(object sender, RoutedEventArgs e)
+        {
+            CustomerDialog dialog = new CustomerDialog();
+            await dialog.ShowAsync();
+            if (!String.IsNullOrEmpty(dialog.CustomerName))
+            {
+                SalePaneTitle.Text = "Nueva deuda";
+                currentSale.CustomerName = dialog.CustomerName;
+                currentSale.ContactInfo = dialog.ContactInfo;
+                ClientNameTextBlock.Text = dialog.CustomerName;
+                ClientNameTextBlock.Visibility = Visibility.Visible;
+            }
+        }
+
     }
 
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -51,6 +51,16 @@ namespace Point.Model
             {
                 var query = db.Table<Sale>();
                 return new List<Sale>(query);
+            }
+        }
+
+        public List<Customer> getCustomers()
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                var query = db.Table<Customer>();
+                return new List<Customer>(query);
             }
         }
 
@@ -110,20 +120,32 @@ namespace Point.Model
 
         public void addNewSale(CurrentSale sale)
         {
-           
-            
+            Debug.WriteLine(sale.CustomerName);
+           if (!String.IsNullOrEmpty(sale.CustomerName))
+            {
+                using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+                {
+                    var s = db.Insert(new Customer()
+                    {
+                        Name = sale.CustomerName,
+                        Items = sale.getItems(),
+                        Debt = sale.total,
+                        Info = sale.ContactInfo,
+                        Date = DateTime.Now
+                    });
+                }
+            } 
             using (var db = new SQLite.Net.SQLiteConnection(new
-              SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
             {
                 var s = db.Insert(new Sale()
                 {
                     Items = sale.getItems(),
                     Total = sale.total,
-                    
                     Date = DateTime.Now
                 });
             }
-            sale.addCurrentSaleToDB();
         }
 
         public List<ItemAsStrings> getSalesByDay(DateTime date)
@@ -136,6 +158,19 @@ namespace Point.Model
                 return today != null ? today.getList() : null;
             }
         }     
+
+        public String getTotalFromDayAsString(DateTime date)
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+                  SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                var stringDate = date.ToLocalTime().ToString("s").Substring(2, 8);
+                SalesByDay today = (from s in db.Table<SalesByDay>() where s.Day == stringDate select s).FirstOrDefault();
+                Double val = today != null ? today.Total : 0;
+                CultureInfo culture = new CultureInfo("es-MX");
+                return String.Format(culture,"{0:C2}", val);
+            }
+        }
     }
 
     public partial class Customer
@@ -156,6 +191,9 @@ namespace Point.Model
 
         [NotNull]
         public String Items { get; set; }
+
+        [NotNull]
+        public DateTime Date { get; set; }
 
     }
 
@@ -241,7 +279,7 @@ namespace Point.Model
                 list.Add(new ItemAsStrings() { qty = cols[0], brand = cols[1], model = cols[2], color = cols[3], size = cols[4], price = cols[5] });
             }
             return list;
-        }
+        }      
 
     }
 
@@ -263,18 +301,23 @@ namespace Point.Model
         public CurrentSale()
         {
             items = new ObservableCollection<uniqueItem>();
+            CustomerName = "";
+            ContactInfo = "";
         }
 
         public  void addCurrentSaleToDB()
         {
             foreach (uniqueItem ui in items)
             {
-                ui.addUniqueItemToDB();
+                ui.addUniqueItemToSalesByDay();
+                ui.deleteUniqueItemFromInventory();
             }
         }
 
+
         public ObservableCollection<uniqueItem> items { get; set; }
-        private Customer newCustomer = new Customer();
+        public string CustomerName { get; set; }
+        public string ContactInfo { get; set; }
 
         public class uniqueItem
         {
@@ -286,12 +329,34 @@ namespace Point.Model
             public int intQty { get { return _qty; } set { _qty = value; } }
             public void incrementQty() { _qty++; }
 
-            public void addUniqueItemToDB()
+            public void addUniqueItemToSalesByDay()
             {
                 for(int i = 0; i < intQty; i++)
                 {
                     addNewItemToSaleByDay(item);
                 }
+            }
+
+            public void deleteUniqueItemFromInventory()
+            {
+                for (int i = 0; i < intQty; i++)
+                {
+                    deleteItemFromInventory(item);
+                }
+            }
+
+            private void deleteItemFromInventory(Item item)
+            {
+                if (item.Num > 0) {
+                    using (var db = new SQLite.Net.SQLiteConnection(new
+   SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+                    {
+                        item.Num--;
+                        db.Update(item);
+                    }
+                }
+                
+
             }
 
             private void addNewItemToSaleByDay(Item item)
@@ -349,14 +414,6 @@ namespace Point.Model
             return returnString;
         }
 
-
-
-        public Customer customer
-        {
-            get { return newCustomer; }
-            set { newCustomer = value; }
-        }
-
         public double total
         {
             get { return (items.Sum(x => ((x as uniqueItem).item.Price * (x as uniqueItem).intQty))); }
@@ -366,16 +423,24 @@ namespace Point.Model
         {
             if (item != null)
             {
-                foreach (uniqueItem i in items)
-                {
-                    if (i.item == item)
+                
+                
+                    foreach (uniqueItem i in items)
                     {
-                        i.incrementQty();
-                        return true;
+                        if (i.item == item)
+                        {
+                            if (i.intQty < item.Num)
+                            {
+                                i.incrementQty();
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
                     }
-                }
-                items.Add(new uniqueItem { item = item });
-                return true;
+                    items.Add(new uniqueItem { item = item });
+                    return true;
+                
             }
             return false;
         }

@@ -112,6 +112,9 @@
     </Compile>
     <Compile Include="Models\Data.cs" />
     <Compile Include="Converters\Converters.cs" />
+    <Compile Include="Views\CustomerDialog.xaml.cs">
+      <DependentUpon>CustomerDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Sales.xaml.cs">
       <DependentUpon>Sales.xaml</DependentUpon>
     </Compile>
@@ -165,6 +168,10 @@
     <Page Include="Views\Busy.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\CustomerDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Sales.xaml">
       <Generator>MSBuild:Compile</Generator>

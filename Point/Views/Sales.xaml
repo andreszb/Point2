@@ -1,4 +1,4 @@
-<Page x:Class="Point.Views.Sales"
+﻿<Page x:Class="Point.Views.Sales"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:Behaviors="using:Template10.Behaviors"
@@ -107,6 +107,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <AutoSuggestBox PlaceholderText="Buscar" TextChanged="textChanged" />
+
             <DataGridControl:DataGrid x:Name="DataGrid"
                                       Grid.Row="1"
                                       DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="True"
@@ -116,7 +117,7 @@
                                                         Binding="{Binding Date,
                                                                           Converter={StaticResource DateToStringFormatConverter}}"
                                                         CanSort="True"
-                                                        Header="Dia"
+                                                        Header="Día"
                                                         IsAscendingDefault="False" />
                     <DataGridControl:DataGridTextColumn Width="3*"
                                                         Binding="{Binding Date,
@@ -134,55 +135,79 @@
                         <StackPanel Name="DetailsStackPanel" Visibility="Visible">
                             <TextBlock FontWeight="Bold" Text="Detalles: " />
                             <TextBlock Text="{Binding Id}" />
-                            <TextBlock Text="{Binding Items}" />
+                            <StackPanel>
+                                <TextBlock Text="{Binding Items}" />
+                            </StackPanel>
                         </StackPanel>
                     </DataTemplate>
                 </DataGridControl:DataGrid.ItemDetailsTemplate>
             </DataGridControl:DataGrid>
+        </Grid>
+        <Grid x:Name="GridDay"
+              Grid.Row="1"
+              Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <DataGridControl:DataGrid x:Name="DataGridDay"
+                                      Grid.Row="0"
+                                      DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="True"
+                                      DefaultOrderIndex="0">
+                <DataGridControl:DataGrid.Columns>
+                    <DataGridControl:DataGridTextColumn Width="3*"
+                                                        Binding="{Binding qty}"
+                                                        CanSort="True"
+                                                        Header="Numero de Ventas"
+                                                        IsAscendingDefault="False" />
+                    <DataGridControl:DataGridTextColumn Width="3*"
+                                                        Binding="{Binding brand}"
+                                                        CanSort="True"
+                                                        Header="Marca" />
+                    <DataGridControl:DataGridTextColumn Width="2*"
+                                                        Binding="{Binding model}"
+                                                        CanSort="True"
+                                                        Header="Modelo" />
+                    <DataGridControl:DataGridTextColumn Width="2*"
+                                                        Binding="{Binding color}"
+                                                        CanSort="True"
+                                                        Header="Color" />
+                    <DataGridControl:DataGridTextColumn Width="2*"
+                                                        Binding="{Binding size}"
+                                                        CanSort="True"
+                                                        Header="Tamano" />
+                    <DataGridControl:DataGridTextColumn Width="2*"
+                                                        Binding="{Binding price}"
+                                                        CanSort="True"
+                                                        Header="Precio" />
+                </DataGridControl:DataGrid.Columns>
+                <DataGridControl:DataGrid.ItemDetailsTemplate>
+                    <DataTemplate>
+                        <StackPanel Name="DetailsStackPanel" Visibility="Visible">
+                            <TextBlock FontWeight="Bold" Text="Detalles: " />
 
+                        </StackPanel>
+                    </DataTemplate>
+                </DataGridControl:DataGrid.ItemDetailsTemplate>
+            </DataGridControl:DataGrid>
+            <Grid Grid.Row="1" Margin="15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Name="DateTextBlock"
+                           Grid.Column="0"
+                           FontSize="30"
+                           Foreground="Gray"
+                           Text="Date" />
+                <TextBlock Name="TotalSalesByDay"
+                           Grid.Column="1"
+                           FontSize="30"
+                           Foreground="Gray"
+                           Text="Total" />
+            </Grid>
 
         </Grid>
-        <DataGridControl:DataGrid x:Name="DataGridDay"
-                                  Grid.Row="1"
-                                  DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="True"
-                                  DefaultOrderIndex="0"
-                                  Visibility="Collapsed">
-            <DataGridControl:DataGrid.Columns>
-                <DataGridControl:DataGridTextColumn Width="3*"
-                                                    Binding="{Binding qty}"
-                                                    CanSort="True"
-                                                    Header="Numero de Ventas"
-                                                    IsAscendingDefault="False" />
-                <DataGridControl:DataGridTextColumn Width="3*"
-                                                    Binding="{Binding brand}"
-                                                    CanSort="True"
-                                                    Header="Marca" />
-                <DataGridControl:DataGridTextColumn Width="2*"
-                                                    Binding="{Binding model}"
-                                                    CanSort="True"
-                                                    Header="Modelo" />
-                <DataGridControl:DataGridTextColumn Width="2*"
-                                                    Binding="{Binding color}"
-                                                    CanSort="True"
-                                                    Header="Color" />
-                <DataGridControl:DataGridTextColumn Width="2*"
-                                                    Binding="{Binding size}"
-                                                    CanSort="True"
-                                                    Header="Tamano" />
-                <DataGridControl:DataGridTextColumn Width="2*"
-                                                    Binding="{Binding price}"
-                                                    CanSort="True"
-                                                    Header="Precio" />
-            </DataGridControl:DataGrid.Columns>
-            <DataGridControl:DataGrid.ItemDetailsTemplate>
-                <DataTemplate>
-                    <StackPanel Name="DetailsStackPanel" Visibility="Visible">
-                        <TextBlock FontWeight="Bold" Text="Detalles: " />
-
-                    </StackPanel>
-                </DataTemplate>
-            </DataGridControl:DataGrid.ItemDetailsTemplate>
-        </DataGridControl:DataGrid>
     </Grid>
 </Page>
 

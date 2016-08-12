@@ -3,8 +3,10 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:Behaviors="using:Template10.Behaviors"
       xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:DataGridControl="using:MyToolkit.Controls"
       xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:controls="using:Template10.Controls"
+      xmlns:conv="using:Point.Converters"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:Point.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -15,8 +17,17 @@
         <vm:MainPageViewModel x:Name="ViewModel" />
     </Page.DataContext>
 
-    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.Resources>
+        <conv:DateFormatConverter x:Name="DateToStringFormatConverter" />
+        <conv:TimeFormatConverter x:Name="TimeToStringFormatConverter" />
+        <conv:DoubleToCurrencyFormatConverter x:Name="DoubleToStringFormatConverter" />
+    </Page.Resources>
 
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
@@ -51,17 +62,52 @@
                              RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
                              RelativePanel.AlignTopWithPanel="True"
-                             Text="Clientes">
+                             Text="Clientes" />
 
-            <!--  secondary commands  -->
-            <controls:PageHeader.SecondaryCommands>
-                <AppBarButton Click="{x:Bind ViewModel.GotoSettings}" Label="Settings" />
-                <AppBarButton Click="{x:Bind ViewModel.GotoPrivacy}" Label="Privacy" />
-                <AppBarButton Click="{x:Bind ViewModel.GotoAbout}" Label="About" />
-            </controls:PageHeader.SecondaryCommands>
+        <Grid x:Name="CustomersViewGrid" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <AutoSuggestBox PlaceholderText="Buscar" TextChanged="textChanged" />
+            <DataGridControl:DataGrid x:Name="CustomersDataGrid"
+                                      Grid.Row="1"
+                                      DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="True"
+                                      DefaultOrderIndex="0">
+                <DataGridControl:DataGrid.Columns>
+                    <DataGridControl:DataGridTextColumn Width="5*"
+                                                        Binding="{Binding Name}"
+                                                        CanSort="True"
+                                                        Header="Nombre"
+                                                        IsAscendingDefault="False" />
+                    <DataGridControl:DataGridTextColumn Width="3*"
+                                                        Binding="{Binding Date,
+                                                                          Converter={StaticResource DateToStringFormatConverter}}"
+                                                        CanSort="True"
+                                                        Header="Fecha" />
+                    <DataGridControl:DataGridTextColumn Width="*"
+                                                        Binding="{Binding Total,
+                                                                          Converter={StaticResource DoubleToStringFormatConverter}}"
+                                                        CanSort="False"
+                                                        Header="Total" />
+                </DataGridControl:DataGrid.Columns>
+                <DataGridControl:DataGrid.ItemDetailsTemplate>
+                    <DataTemplate>
+                        <StackPanel Name="DetailsStackPanel">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontWeight="Bold" Text="Datos de contacto: " />
+                                <TextBlock Text="{Binding Info}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontWeight="Bold" Text="Compra: " />
+                                <TextBlock Text="{Binding Items}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </DataTemplate>
+                </DataGridControl:DataGrid.ItemDetailsTemplate>
+            </DataGridControl:DataGrid>
+        </Grid>
 
-        </controls:PageHeader>
-
-    </RelativePanel>
+    </Grid>
 </Page>
 
