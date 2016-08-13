@@ -115,6 +115,9 @@
     <Compile Include="Views\CustomerDialog.xaml.cs">
       <DependentUpon>CustomerDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\LoginDialog.xaml.cs">
+      <DependentUpon>LoginDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Sales.xaml.cs">
       <DependentUpon>Sales.xaml</DependentUpon>
     </Compile>
@@ -170,6 +173,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\CustomerDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LoginDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

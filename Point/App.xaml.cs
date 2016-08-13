@@ -16,6 +16,9 @@ namespace Point
     [Bindable]
     sealed partial class App : Template10.Common.BootStrapper
     {
+        
+        public static bool isAdminLoggedIn = false;
+
         public App()
         {
             InitializeComponent();

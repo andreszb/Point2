@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="Point.Views.LoginDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:Point.Views"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             x:Name="ThisPage"
+             Width="350"
+             d:DesignHeight="200"
+             mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <!--  header  -->
+        <Rectangle Fill="CornflowerBlue" />
+        <TextBlock Margin="20,0"
+                   VerticalAlignment="Center"
+                   FontSize="24"
+                   Foreground="White">
+            Entrar como administrador
+        </TextBlock>
+        <Button Margin="12"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Click="CloseClicked"
+                Foreground="White"
+                Style="{StaticResource TextBlockButtonStyle}">
+            <SymbolIcon Symbol="Clear" />
+        </Button>
+
+        <!--  login form  -->
+        <StackPanel Grid.Row="1"
+                    Margin="20, 16"
+                    DataContext="{Binding ElementName=ThisPage}">
+            <PasswordBox Name="PasswordTextBox" Header="Contraseña" MaxLength="8"/>
+            <Button Margin="0,12,0,0"
+                    HorizontalAlignment="Right"
+                    Click="LoginClicked">
+                Aceptar
+            </Button>
+        </StackPanel>
+
+    </Grid>
+</UserControl>

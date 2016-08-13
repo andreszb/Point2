@@ -22,19 +22,30 @@ namespace Point.Views
 
     public sealed partial class Inventory : Page
     {
-        private bool? brandCB {get;set;}
+        private bool? brandCB {get;set;} 
         private Data data = new Data();
         public CurrentSale currentSale = new CurrentSale();
         private Item selectedItemToEdit;
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            UpdateTable();
 
-        }
+            
 
         public Inventory()
         {
             this.InitializeComponent();          
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            UpdateTable();
+            if (App.isAdminLoggedIn)
+            {
+                editItemButton.Visibility = Visibility.Visible;
+                newItemButton.Visibility = Visibility.Visible;
+            } else
+            {
+                editItemButton.Visibility = Visibility.Collapsed;
+                newItemButton.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void UpdateTable()

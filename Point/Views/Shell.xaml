@@ -10,70 +10,96 @@
       xmlns:views="using:Point.Views"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
       mc:Ignorable="d">
+    <Grid>
+        <Controls:HamburgerMenu x:Name="MyHamburgerMenu">
 
-    <Controls:HamburgerMenu x:Name="MyHamburgerMenu">
+            <Controls:HamburgerMenu.PrimaryButtons>
+                <!--  mainpage button  -->
 
-        <Controls:HamburgerMenu.PrimaryButtons>
-            <!--  mainpage button  -->
-
-            <Controls:HamburgerButtonInfo AutomationProperties.Name="Jerry"
+                <Controls:HamburgerButtonInfo AutomationProperties.Name="Jerry"
                                           ClearHistory="False"
                                           PageType="views:Inventory">
-                <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48"
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Width="48"
                                 Height="48"
                                 Symbol="List" />
-                    <TextBlock Margin="12,0,0,0"
+                        <TextBlock Margin="12,0,0,0"
                                VerticalAlignment="Center"
                                Text="Punto de Venta" />
-                </StackPanel>
-            </Controls:HamburgerButtonInfo>
-            <Controls:HamburgerButtonInfo AutomationProperties.Name="Jerry"
+                    </StackPanel>
+                </Controls:HamburgerButtonInfo>
+                <Controls:HamburgerButtonInfo AutomationProperties.Name="Jerry"
                                           ClearHistory="False"
                                           PageType="views:Customers">
-                <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48"
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Width="48"
                                 Height="48"
                                 Symbol="Contact" />
-                    <TextBlock Margin="12,0,0,0"
+                        <TextBlock Margin="12,0,0,0"
                                VerticalAlignment="Center"
                                Text="Clientes" />
-                </StackPanel>
-            </Controls:HamburgerButtonInfo>
-            <Controls:HamburgerButtonInfo AutomationProperties.Name="Jerry"
+                    </StackPanel>
+                </Controls:HamburgerButtonInfo>
+                <Controls:HamburgerButtonInfo AutomationProperties.Name="Jerry"
                                           ClearHistory="False"
                                           PageType="views:Sales">
-                <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48"
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Width="48"
                                 Height="48"
                                 Symbol="Shop" />
-                    <TextBlock Margin="12,0,0,0"
+                        <TextBlock Margin="12,0,0,0"
                                VerticalAlignment="Center"
                                Text="Registro de Ventas" />
-                </StackPanel>
-            </Controls:HamburgerButtonInfo>
-        </Controls:HamburgerMenu.PrimaryButtons>
+                    </StackPanel>
+                </Controls:HamburgerButtonInfo>
+            </Controls:HamburgerMenu.PrimaryButtons>
 
-        <Controls:HamburgerMenu.SecondaryButtons>
-            <!--  settingspage button  -->
-            <Controls:HamburgerButtonInfo x:Name="SettingsButton"
+            <Controls:HamburgerMenu.SecondaryButtons>
+                <!--  login button  -->
+                <Controls:HamburgerButtonInfo x:Name="LoginButton"
+                                              MaxWidth="48"
+                                              ButtonType="Command"
+                                              Tapped="LoginTapped">
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Width="48"
+                                Height="48"
+                                Symbol="Permissions" />
+                        <TextBlock Margin="12,0,0,0"
+                               VerticalAlignment="Center"
+                               Text="Administrador" />
+                    </StackPanel>
+                </Controls:HamburgerButtonInfo>
+                <!--  settingspage button  -->
+                <Controls:HamburgerButtonInfo x:Name="SettingsButton"
                                           PageParameter="0"
                                           PageType="views:SettingsPage">
-                <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
-                    <SuppressNavigationTransitionInfo />
-                </Controls:HamburgerButtonInfo.NavigationTransitionInfo>
-                <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Width="48"
+                    <Controls:HamburgerButtonInfo.NavigationTransitionInfo>
+                        <SuppressNavigationTransitionInfo />
+                    </Controls:HamburgerButtonInfo.NavigationTransitionInfo>
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Width="48"
                                 Height="48"
                                 Symbol="Setting" />
-                    <TextBlock Margin="12,0,0,0"
+                        <TextBlock Margin="12,0,0,0"
                                VerticalAlignment="Center"
                                Text="Settings" />
-                </StackPanel>
-            </Controls:HamburgerButtonInfo>
-        </Controls:HamburgerMenu.SecondaryButtons>
+                    </StackPanel>
+                </Controls:HamburgerButtonInfo>
+            </Controls:HamburgerMenu.SecondaryButtons>
+        </Controls:HamburgerMenu>
 
-    </Controls:HamburgerMenu>
-
+        <Controls:ModalDialog x:Name="LoginModal"
+                              CanBackButtonDismiss="False"
+                              DisableBackButtonWhenModal="True">
+            <Controls:ModalDialog.ModalContent>
+                <local:LoginDialog x:Name="loginPart"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  HideRequested="LoginHide"
+                                  LoggedIn="LoginLoggedIn" />
+            </Controls:ModalDialog.ModalContent>
+        </Controls:ModalDialog>
+        
+    </Grid>
 </Page>
 

@@ -15,7 +15,6 @@
 
     <Page.DataContext>
         <vm:MainPageViewModel x:Name="ViewModel" />
-
     </Page.DataContext>
 
     <Page.Resources>
@@ -83,7 +82,8 @@
                 <AppBarButton Name="editItemButton"
                               Click="editItemButton_Click"
                               Icon="Edit"
-                              Label="Modificar Inventario" />
+                              Label="Modificar Inventario"
+                              />
                 <AppBarButton Name="NewSaleButton"
                               Click="NewSaleButton_Click"
                               Icon="Calculator"

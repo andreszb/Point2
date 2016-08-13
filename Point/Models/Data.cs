@@ -9,14 +9,18 @@ using SQLite.Net;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
+using Template10.Mvvm;
+
 
 namespace Point.Model
 {
+    
+    
     class Data
     {
         private string path;
         private SQLite.Net.SQLiteConnection db;
-
+        
         public Data() {
             path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
                "db.sqlite");

@@ -86,7 +86,7 @@
                                                         CanSort="True"
                                                         Header="Fecha" />
                     <DataGridControl:DataGridTextColumn Width="*"
-                                                        Binding="{Binding Total,
+                                                        Binding="{Binding Debt,
                                                                           Converter={StaticResource DoubleToStringFormatConverter}}"
                                                         CanSort="False"
                                                         Header="Total" />
@@ -94,12 +94,12 @@
                 <DataGridControl:DataGrid.ItemDetailsTemplate>
                     <DataTemplate>
                         <StackPanel Name="DetailsStackPanel">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock FontWeight="Bold" Text="Datos de contacto: " />
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBlock FontWeight="Bold" Text="Datos de contacto: " Margin="0,0,5,0"/>
                                 <TextBlock Text="{Binding Info}" />
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock FontWeight="Bold" Text="Compra: " />
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBlock FontWeight="Bold" Text="Compra: " Margin="0,0,5,0" />
                                 <TextBlock Text="{Binding Items}" />
                             </StackPanel>
                         </StackPanel>
