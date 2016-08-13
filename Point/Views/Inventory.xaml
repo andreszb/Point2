@@ -10,12 +10,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:Point.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:vm="using:Point.ViewModels"
       mc:Ignorable="d">
-
-    <Page.DataContext>
-        <vm:MainPageViewModel x:Name="ViewModel" />
-    </Page.DataContext>
 
     <Page.Resources>
         <Style x:Key="NoAnimations" TargetType="ListView">
@@ -27,11 +22,7 @@
         </Style>
         <conv:DateFormatConverter x:Name="DateToStringFormatConverter" />
         <conv:DoubleToCurrencyFormatConverter x:Name="DoubleToStringFormatConverter" />
-
     </Page.Resources>
-
-
-
     <Grid Name="TopGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -68,22 +59,21 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <controls:PageHeader x:Name="pageHeader"
+        <controls:PageHeader x:Name="PageHeader"
                              EllipsisVisibility="Collapsed"
                              RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
                              RelativePanel.AlignTopWithPanel="True"
                              Text="Punto de Venta">
             <controls:PageHeader.PrimaryCommands>
-                <AppBarButton Name="newItemButton"
-                              Click="newItemButton_Click"
+                <AppBarButton Name="NewItemButton"
+                              Click="NewItemButton_Click"
                               Icon="Add"
                               Label="Agregar a Inventario" />
-                <AppBarButton Name="editItemButton"
-                              Click="editItemButton_Click"
+                <AppBarButton Name="EditItemButton"
+                              Click="EditItemButton_Click"
                               Icon="Edit"
-                              Label="Modificar Inventario"
-                              />
+                              Label="Modificar Inventario" />
                 <AppBarButton Name="NewSaleButton"
                               Click="NewSaleButton_Click"
                               Icon="Calculator"
@@ -91,22 +81,19 @@
             </controls:PageHeader.PrimaryCommands>
         </controls:PageHeader>
 
-
-
-        <SplitView Name="newItemSplitView"
+        <SplitView Name="NISplitView"
                    Grid.Row="1"
                    DisplayMode="Overlay"
-                   IsPaneOpen="False"
                    PaneBackground="Beige"
                    PanePlacement="Right">
             <SplitView.Pane>
-                <Grid>
+                <Grid Name="NIGrid">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <ScrollViewer Name="newScrollViewer" VerticalScrollBarVisibility="Auto">
-                        <Grid Name="newItemGrid"
+                    <ScrollViewer Name="NIScrollViewer" VerticalScrollBarVisibility="Auto">
+                        <Grid Name="NIFieldsGrid"
                               MinHeight="400"
                               Margin="20">
                             <Grid.RowDefinitions>
@@ -117,78 +104,79 @@
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="*" />
-
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <TextBlock VerticalAlignment="Center" FontSize="36">Nuevo artículo</TextBlock>
-
-                            <AutoSuggestBox Name="TypeBox"
+                            <AutoSuggestBox Name="NITypeBox"
                                             Grid.Row="1"
                                             VerticalAlignment="Center"
                                             PlaceholderText="Prenda" />
-                            <AutoSuggestBox Name="SizeBox"
+                            <AutoSuggestBox Name="NISizeBox"
                                             Grid.Row="2"
                                             VerticalAlignment="Center"
                                             PlaceholderText="Tamaño" />
-                            <AutoSuggestBox Name="CodeBox"
+                            <AutoSuggestBox Name="NICodeBox"
                                             Grid.Row="3"
                                             VerticalAlignment="Center"
                                             PlaceholderText="Color" />
-                            <AutoSuggestBox Name="BrandBox"
+                            <AutoSuggestBox Name="NIBrandBox"
                                             Grid.Row="4"
                                             VerticalAlignment="Center"
                                             PlaceholderText="Marca" />
-                            <TextBox Name="PriceBox"
+                            <TextBox Name="NIPriceBox"
                                      Grid.Row="5"
                                      VerticalAlignment="Center"
                                      PlaceholderText="Precio"
                                      TextChanging="checkDouble" />
-                            <TextBox Name="NumBox"
+                            <TextBox Name="NINumBox"
                                      Grid.Row="6"
                                      VerticalAlignment="Center"
                                      PlaceholderText="Numero"
                                      TextChanging="checkDouble" />
                         </Grid>
                     </ScrollViewer>
-                    <Grid Grid.Row="1" Margin="0,0,0,0">
+                    <Grid Name="NIActionButtonsGrid"
+                          Grid.Row="1"
+                          Margin="0,0,0,0">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition x:Name="gridColumnWidth" Width="*" />
+                            <ColumnDefinition x:Name="NIActionButtonsGridColumnWidth" Width="*" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0"
+                        <Button Name="NIAddButton"
+                                Grid.Column="0"
                                 Width="{Binding ActualWidth,
-                                                ElementName=gridColumnWidth}"
+                                                ElementName=NIActionButtonsGridColumnWidth}"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Click="addNewItem_Click">
+                                Click="NIAddButton_Click">
                             Agregar
                         </Button>
-                        <Button Grid.Column="1"
+                        <Button Name="NICancelButton"
+                                Grid.Column="1"
                                 Width="{Binding ActualWidth,
-                                                ElementName=gridColumnWidth}"
+                                                ElementName=NIActionButtonsGridColumnWidth}"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Click="cancelNewItem_Click">
+                                Click="NICancelButton_Click">
                             Cancelar
                         </Button>
                     </Grid>
                 </Grid>
             </SplitView.Pane>
             <SplitView.Content>
-                <SplitView Name="NewSaleSplitView"
+                <SplitView Name="NSSplitView"
                            DisplayMode="Inline"
-                           IsPaneOpen="True"
                            PaneBackground="AliceBlue"
                            PanePlacement="Right">
                     <SplitView.Pane>
-                        <Grid>
+                        <Grid Name="NSGrid">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <Grid Name="newSaleGrid"
+                            <Grid Name="NSListGrid"
                                   MinHeight="400"
                                   Margin="20">
                                 <Grid.RowDefinitions>
@@ -197,14 +185,15 @@
                                     <RowDefinition Height="10*" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-                                <Grid>
-                                    <TextBlock Name="SalePaneTitle"
+                                <Grid Name="NSTitleGrid">
+                                    <TextBlock Name="NSTitleTextBlock"
                                                Margin="0,10"
                                                VerticalAlignment="Center"
                                                FontSize="36">
                                         Venta
                                     </TextBlock>
-                                    <Button Margin="0,10"
+                                    <Button Name="NSAddDebtorButton"
+                                            Margin="0,10"
                                             HorizontalAlignment="Right"
                                             Background="Transparent"
                                             Click="CustomerButton_Click"
@@ -215,14 +204,16 @@
                                                     Symbol="OtherUser" />
                                     </Button>
                                 </Grid>
-                                <TextBlock Name="ClientNameTextBlock"
+                                <TextBlock Name="NSCustomerNameTextBlock"
                                            Grid.Row="1"
                                            Margin="10"
                                            FontSize="20"
                                            Text="Cliente"
                                            Visibility="Collapsed" />
-                                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-                                    <ListView Name="cartListView"
+                                <ScrollViewer Name="NSListScrollViewer"
+                                              Grid.Row="2"
+                                              VerticalScrollBarVisibility="Auto">
+                                    <ListView Name="NSList"
                                               IsItemClickEnabled="True"
                                               ItemClick="cartListView_ItemClick"
                                               ItemsSource="{x:Bind currentSale.items}"
@@ -249,55 +240,60 @@
                                         </ListView.ItemTemplate>
                                     </ListView>
                                 </ScrollViewer>
-                                <Grid Grid.Row="3" Margin="0,10,0,0">
+                                <Grid Name="NSTotalGrid"
+                                      Grid.Row="3"
+                                      Margin="0,10,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" FontSize="30">Total:</TextBlock>
-                                    <TextBlock Name="totalTextBlock"
+                                    <TextBlock Name="NSTotalTextBlock"
                                                Grid.Column="1"
                                                FontSize="30"
                                                Text="$0.00" />
                                 </Grid>
                             </Grid>
-                            <Grid Grid.Row="1" Margin="0,0,0,0">
+                            <Grid Name="NSActionButtonsGrid"
+                                  Grid.Row="1"
+                                  Margin="0,0,0,0">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition x:Name="gridColumnWidth1" Width="*" />
+                                    <ColumnDefinition x:Name="NSActionButtonsGridColumnWidth" Width="*" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0"
+                                <Button Name="NSAcceptButton"
+                                        Grid.Column="0"
                                         Width="{Binding ActualWidth,
-                                                        ElementName=gridColumnWidth1}"
+                                                        ElementName=NSActionButtonsGridColumnWidth}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
-                                        Click="addNewSaleButton_Click">
+                                        Click="NSAcceptButton_Click">
                                     Aceptar
                                 </Button>
-                                <Button Grid.Column="1"
+                                <Button Name="NSCancelButton"
+                                        Grid.Column="1"
                                         Width="{Binding ActualWidth,
-                                                        ElementName=gridColumnWidth1}"
+                                                        ElementName=NSActionButtonsGridColumnWidth}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
-                                        Click="cancelNewSale_Click">
+                                        Click="NSCancelButton_Click">
                                     Cancelar
                                 </Button>
                             </Grid>
                         </Grid>
                     </SplitView.Pane>
                     <SplitView.Content>
-                        <SplitView Name="EditItemSplitView"
+                        <SplitView Name="EISplitView"
                                    DisplayMode="Inline"
-                                   IsPaneOpen="False"
                                    PanePlacement="Left">
                             <SplitView.Pane>
-                                <Grid>
+                                <Grid Name="EIGrid">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
-                                    <ScrollViewer Name="editScrollViewer" VerticalScrollBarVisibility="Auto">
-                                        <Grid Name="editItemGrid"
+                                    <ScrollViewer Name="EIScrollViewer" VerticalScrollBarVisibility="Auto">
+                                        <Grid Name="EIFieldsGrid"
                                               MinHeight="400"
                                               Margin="20">
                                             <Grid.RowDefinitions>
@@ -312,9 +308,12 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock VerticalAlignment="Center" FontSize="34">Editar artículo</TextBlock>
-                                                <Button Name="deleteItemFromDBButton"
+                                            <StackPanel Name="EITitleStackPanel" Orientation="Horizontal">
+                                                <TextBlock Name="EITitle"
+                                                           VerticalAlignment="Center"
+                                                           FontSize="34"
+                                                           Text="Editar articulo" />
+                                                <Button Name="EIDeleteButton"
                                                         Margin="15,0,0,0"
                                                         Background="Transparent"
                                                         Visibility="Collapsed">
@@ -322,47 +321,30 @@
                                                                 Height="30"
                                                                 Symbol="Delete" />
                                                     <Button.Flyout>
-                                                        <Flyout x:Name="deleteFlyout">
+                                                        <Flyout x:Name="EIDeleteFlyout">
                                                             <StackPanel>
-                                                                <TextBlock Margin="5">¿Eliminar artículo seleccionado?</TextBlock>
-                                                                <Button Margin="5"
+                                                                <TextBlock Margin="5" Text="¿Eliminar artículo seleccionado?" />
+                                                                <Button Name="EIConfirmDeleteButton"
+                                                                        Margin="5"
                                                                         HorizontalAlignment="Center"
                                                                         Background="Red"
-                                                                        Click="deleteItemFromDBButton_Click">
-                                                                    Eliminar
-                                                                </Button>
+                                                                        Click="EIConfirmDeleteButton_Click"
+                                                                        Content="Eliminar" />
                                                             </StackPanel>
-
                                                         </Flyout>
                                                     </Button.Flyout>
                                                 </Button>
                                             </StackPanel>
-                                            <Grid Grid.Row="1">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="90" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock VerticalAlignment="Center"
-                                                           FontSize="16"
-                                                           Text="Prenda" />
-                                                <AutoSuggestBox Name="EditTypeBox"
-                                                                Grid.Column="1"
-                                                                VerticalAlignment="Center"
-                                                                PlaceholderText="Prenda" />
-                                            </Grid>
-                                            <Grid Grid.Row="2">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="90" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock VerticalAlignment="Center"
-                                                           FontSize="16"
-                                                           Text="Tamaño" />
-                                                <AutoSuggestBox Name="EditSizeBox"
-                                                                Grid.Column="1"
-                                                                VerticalAlignment="Center"
-                                                                PlaceholderText="Tamaño" />
-                                            </Grid>
+                                            <AutoSuggestBox Name="EditTypeBox"
+                                                            Grid.Row="1"
+                                                            VerticalAlignment="Center"
+                                                            Header="Prenda"
+                                                            PlaceholderText="Prenda" />
+                                            <AutoSuggestBox Name="EditSizeBox"
+                                                            Grid.Row="2"
+                                                            VerticalAlignment="Center"
+                                                            Header="Tamano"
+                                                            PlaceholderText="Tamaño" />
                                             <Grid Grid.Row="3">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="90" />
