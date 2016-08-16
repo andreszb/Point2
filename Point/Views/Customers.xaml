@@ -62,52 +62,298 @@
                              RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
                              RelativePanel.AlignTopWithPanel="True"
-                             Text="Clientes" />
+                             Text="Clientes">
+            <controls:PageHeader.PrimaryCommands>
 
-        <Grid x:Name="CustomersViewGrid" Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <AutoSuggestBox PlaceholderText="Buscar" TextChanged="textChanged" />
-            <DataGridControl:DataGrid x:Name="CustomersDataGrid"
-                                      Grid.Row="1"
-                                      DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="True"
-                                      DefaultOrderIndex="0">
-                <DataGridControl:DataGrid.Columns>
-                    <DataGridControl:DataGridTextColumn Width="5*"
-                                                        Binding="{Binding Name}"
-                                                        CanSort="True"
-                                                        Header="Nombre"
-                                                        IsAscendingDefault="False" />
-                    <DataGridControl:DataGridTextColumn Width="3*"
-                                                        Binding="{Binding Date,
-                                                                          Converter={StaticResource DateToStringFormatConverter}}"
-                                                        CanSort="True"
-                                                        Header="Fecha" />
-                    <DataGridControl:DataGridTextColumn Width="*"
-                                                        Binding="{Binding Debt,
-                                                                          Converter={StaticResource DoubleToStringFormatConverter}}"
-                                                        CanSort="False"
-                                                        Header="Total" />
-                </DataGridControl:DataGrid.Columns>
-                <DataGridControl:DataGrid.ItemDetailsTemplate>
-                    <DataTemplate>
-                        <StackPanel Name="DetailsStackPanel">
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <TextBlock FontWeight="Bold" Text="Datos de contacto: " Margin="0,0,5,0"/>
-                                <TextBlock Text="{Binding Info}" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <TextBlock FontWeight="Bold" Text="Compra: " Margin="0,0,5,0" />
-                                <TextBlock Text="{Binding Items}" />
-                            </StackPanel>
-                        </StackPanel>
-                    </DataTemplate>
-                </DataGridControl:DataGrid.ItemDetailsTemplate>
-            </DataGridControl:DataGrid>
-        </Grid>
+                <AppBarButton Name="EditDebtButton"
+                              Click="EditDebtButton_Click"
+                              Icon="Edit"
+                              Label="Editar deuda" />
 
+            </controls:PageHeader.PrimaryCommands>
+        </controls:PageHeader>
+
+
+
+
+        <SplitView Name="ECSplitView"
+                   Grid.Row="1"
+                   DisplayMode="Inline"
+                   PanePlacement="Right">
+            <SplitView.Pane>
+                <Grid Name="ECGrid">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <ScrollViewer Name="ECScrollViewer"
+                                  VerticalScrollBarVisibility="Auto"
+                                  Visibility="Visible">
+                        <Grid Name="ECFieldsGrid"
+                              MinHeight="400"
+                              Margin="20">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Name="ECTitleStackPanel" Orientation="Horizontal">
+                                <TextBlock Name="ECTitle"
+                                           VerticalAlignment="Center"
+                                           FontSize="34"
+                                           Text="Editar deuda" />
+                                <Button Name="ECDeleteButton"
+                                        Margin="15,0,0,0"
+                                        Background="Transparent"
+                                        Visibility="Collapsed">
+                                    <SymbolIcon Width="30"
+                                                Height="30"
+                                                Symbol="Delete" />
+                                    <Button.Flyout>
+                                        <Flyout x:Name="ECDeleteFlyout">
+                                            <StackPanel>
+                                                <TextBlock Margin="5" Text="¿Eliminar artículo seleccionado?" />
+                                                <Button Name="ECConfirmDeleteButton"
+                                                        Margin="5"
+                                                        HorizontalAlignment="Center"
+                                                        Background="Red"
+                                                        Click="ECConfirmDeleteButton_Click"
+                                                        Content="Eliminar" />
+                                            </StackPanel>
+                                        </Flyout>
+                                    </Button.Flyout>
+                                </Button>
+                            </StackPanel>
+                            <AutoSuggestBox Name="ECNameBox"
+                                            Grid.Row="1"
+                                            VerticalAlignment="Center"
+                                            PlaceholderText="Nombre" />
+                            <AutoSuggestBox Name="ECAddressBox"
+                                            Grid.Row="2"
+                                            VerticalAlignment="Center"
+                                            PlaceholderText="Direccion" />
+                            <AutoSuggestBox Name="ECPhoneNumberBox"
+                                            Grid.Row="3"
+                                            VerticalAlignment="Center"
+                                            PlaceholderText="Telefono" />
+                            <AutoSuggestBox Name="ECNotesBox"
+                                            Grid.Row="4"
+                                            VerticalAlignment="Center"
+                                            PlaceholderText="Comentarios" />
+                            <AutoSuggestBox Name="ECItemsBox"
+                                            Grid.Row="5"
+                                            VerticalAlignment="Center"
+                                            PlaceholderText="Compra" />
+                            <TextBox Name="ECDebtBox"
+                                     Grid.Row="6"
+                                     VerticalAlignment="Center"
+                                     PlaceholderText="Deuda"
+                                     TextChanging="CheckDouble" />
+                            <TextBox Name="ECPayedDebtBox"
+                                     Grid.Row="7"
+                                     VerticalAlignment="Center"
+                                     PlaceholderText="Pagado"
+                                     TextChanging="CheckDouble" />
+                        </Grid>
+                    </ScrollViewer>
+                    <ScrollViewer Name="PDScrollViewer"
+                                  VerticalScrollBarVisibility="Auto"
+                                  Visibility="Collapsed">
+                        <Grid Name="PDFieldsGrid"
+                              MinHeight="400"
+                              Margin="20">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="3*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Name="PDTitleStackPanel" Orientation="Horizontal">
+                                <TextBlock Name="PDTitle"
+                                           VerticalAlignment="Center"
+                                           FontSize="34"
+                                           Text="Pagar deuda" />
+                                <Button Name="PDDeleteButton"
+                                        Margin="15,0,0,0"
+                                        Background="Transparent"
+                                        Visibility="Collapsed">
+                                    <SymbolIcon Width="30"
+                                                Height="30"
+                                                Symbol="Delete" />
+                                    <Button.Flyout>
+                                        <Flyout x:Name="PDDeleteFlyout">
+                                            <StackPanel>
+                                                <TextBlock Margin="5" Text="¿Eliminar artículo seleccionado?" />
+                                                <Button Name="PDConfirmDeleteButton"
+                                                        Margin="5"
+                                                        HorizontalAlignment="Center"
+                                                        Background="Red"
+                                                        Click="ECConfirmDeleteButton_Click"
+                                                        Content="Eliminar" />
+                                            </StackPanel>
+                                        </Flyout>
+                                    </Button.Flyout>
+                                </Button>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                                <TextBlock FontSize="16" Text="Nombre" />
+                                <TextBlock Name="PDNameTextBlock"
+                                           VerticalAlignment="Center"
+                                           FontSize="20" />
+                            </StackPanel>
+
+                            <TextBlock Name="PDItemsTextBlock"
+                                       Grid.Row="2"
+                                       VerticalAlignment="Center"
+                                       FontSize="20" />
+                            <StackPanel Grid.Row="3" VerticalAlignment="Center">
+                                <TextBlock FontSize="16" Text="Deuda" />
+                                <TextBlock Name="PDDebtBox" FontSize="20" />
+                            </StackPanel>
+
+                            <TextBox Name="PDPayedDebtBox"
+                                     Grid.Row="4"
+                                     VerticalAlignment="Center"
+                                     FontSize="20"
+                                     Header="Cantidad a pagar"
+                                     TextChanging="CheckDouble" />
+                        </Grid>
+                    </ScrollViewer>
+                    <Grid Name="ECActionButtonsGrid"
+                          Grid.Row="1"
+                          Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition x:Name="ECActionButtonsGridColumnWidth" Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <TextBlock Name="ECErrorTextBlock"
+                                   Margin="5"
+                                   HorizontalAlignment="Center"
+                                   FontSize="15"
+                                   Foreground="Red"
+                                   Text="Error al pagar"
+                                   Visibility="Collapsed" />
+                        <Button Name="ECConfirmButton"
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                HorizontalAlignment="Stretch"
+                                Click="ECConfirmButton_Click"
+                                Content="Confirmar" />
+                        <Button Name="ECCancelButton"
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                Click="ECCancelButton_Click"
+                                Content="Cancelar" />
+                    </Grid>
+                </Grid>
+            </SplitView.Pane>
+            <SplitView.Content>
+                <Grid x:Name="CustomersViewGrid">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid Name="SearchBarGrid">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="5*" />
+                            <ColumnDefinition Width="150" />
+                        </Grid.ColumnDefinitions>
+                        <AutoSuggestBox Name="SearchBar"
+                                        PlaceholderText="Buscar"
+                                        TextChanged="TextChanged" />
+                        <Button Name="FilterButton"
+                                Grid.Column="1"
+                                Width="150"
+                                Content="Filtro">
+                            <Button.Flyout>
+                                <Flyout>
+                                    <ItemsControl>
+
+                                        <CheckBox Name="NameCheckBox" IsChecked="True">Nombre</CheckBox>
+                                        <CheckBox Name="AddressCheckBox" IsChecked="False">Direccion</CheckBox>
+                                        <CheckBox Name="PhoneNumberCheckBox" IsChecked="False">Telefono</CheckBox>
+                                        <CheckBox Name="NotesCheckBox" IsChecked="False">Comentarios</CheckBox>
+                                        <CheckBox Name="DebtCheckBox" IsChecked="False">Deuda</CheckBox>
+                                        <CheckBox Name="ItemsCheckBox" IsChecked="False">Compra</CheckBox>
+                                        <CheckBox Name="DateCheckBox" IsChecked="False">Fecha</CheckBox>
+                                    </ItemsControl>
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
+                    </Grid>
+                    <DataGridControl:DataGrid x:Name="DataGrid"
+                                              Grid.Row="1"
+                                              DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="True"
+                                              DefaultOrderIndex="0"
+                                              Navigate="SelectCustomer">
+                        <DataGridControl:DataGrid.Columns>
+                            <DataGridControl:DataGridTextColumn Width="4*"
+                                                                Binding="{Binding Name}"
+                                                                CanSort="True"
+                                                                Header="Nombre"
+                                                                IsAscendingDefault="False" />
+                            <DataGridControl:DataGridTextColumn Width="2*"
+                                                                Binding="{Binding Date,
+                                                                                  Converter={StaticResource DateToStringFormatConverter}}"
+                                                                CanSort="True"
+                                                                Header="Fecha" />
+                            <DataGridControl:DataGridTextColumn Width="*"
+                                                                Binding="{Binding Debt,
+                                                                                  Converter={StaticResource DoubleToStringFormatConverter}}"
+                                                                CanSort="False"
+                                                                Header="Deuda" />
+                            <DataGridControl:DataGridTextColumn Width="*"
+                                                                Binding="{Binding PayedDebt,
+                                                                                  Converter={StaticResource DoubleToStringFormatConverter}}"
+                                                                CanSort="False"
+                                                                Header="Pagado" />
+                            <DataGridControl:DataGridTextColumn Width="*"
+                                                                Binding="{Binding Total,
+                                                                                  Converter={StaticResource DoubleToStringFormatConverter}}"
+                                                                CanSort="False"
+                                                                Header="Total" />
+                        </DataGridControl:DataGrid.Columns>
+                        <DataGridControl:DataGrid.ItemDetailsTemplate>
+                            <DataTemplate>
+                                <StackPanel Name="DetailsStackPanel">
+                                    <StackPanel Margin="5" Orientation="Horizontal">
+                                        <TextBlock Margin="0,0,5,0"
+                                                   FontWeight="Bold"
+                                                   Text="Datos de contacto: " />
+                                        <TextBlock Text="{Binding Info}" />
+                                    </StackPanel>
+                                    <StackPanel Margin="5" Orientation="Horizontal">
+                                        <TextBlock Margin="0,0,5,0"
+                                                   FontWeight="Bold"
+                                                   Text="Compra: " />
+                                        <TextBlock Text="{Binding Items}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridControl:DataGrid.ItemDetailsTemplate>
+                    </DataGridControl:DataGrid>
+                </Grid>
+            </SplitView.Content>
+        </SplitView>
     </Grid>
 </Page>
 

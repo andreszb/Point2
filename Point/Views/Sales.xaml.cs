@@ -10,6 +10,7 @@ using System.Diagnostics;
 using MyToolkit.Controls;
 using Point.Model;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace Point.Views
 {
@@ -20,6 +21,11 @@ namespace Point.Views
         public Sales()
         {
             this.InitializeComponent();
+            CultureInfo.CurrentCulture = new CultureInfo("es-MX");
+            DataGridDay.ItemsSource = data.getSalesByDay(DateTime.Now.ToLocalTime());
+            TotalSalesByDay.Text = data.getTotalFromDayAsString(DateTime.Now.ToLocalTime());
+            DateTextBlock.Text = DateTime.Now.ToLocalTime().ToString("D");
+
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -32,26 +38,23 @@ namespace Point.Views
             DataGrid.ItemsSource = data.getSales();
         }
 
-        private void textChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private void TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            //if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
-            //{
-            //    DataGrid.SetFilter<Item>(p =>
-            //            (p.Brand.ToLower().Contains(sender.Text.ToLower()) && (bool)brandCheckBox.IsChecked) ||
-            //            (p.Model.ToLower().Contains(sender.Text.ToLower()) && (bool)modelCheckBox.IsChecked) ||
-            //            (p.Color.ToLower().Contains(sender.Text.ToLower()) && (bool)colorCheckBox.IsChecked) ||
-            //            (p.Size.ToLower().Contains(sender.Text.ToLower()) && (bool)sizeCheckBox.IsChecked) ||
-            //            (p.Num.ToString().Contains(sender.Text.ToLower()) && (bool)numCheckBox.IsChecked) ||
-            //            (p.Cost.ToString().Contains(sender.Text.ToLower()) && (bool)costCheckBox.IsChecked) ||
-            //            (p.Price.ToString().Contains(sender.Text.ToLower()) && (bool)priceCheckBox.IsChecked) ||
-            //            (p.Category.ToLower().Contains(sender.Text.ToLower()) && (bool)categoryCheckBox.IsChecked));
-
-            //}
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                DataGrid.SetFilter<Sale>(p =>
+                        (p.Items.ToLower().Contains(sender.Text.ToLower()) && (bool)InfoCheckBox.IsChecked) ||
+                        (p.Date.ToLocalTime().ToString("D").Contains(sender.Text.ToLower()) && (bool)DayCheckBox.IsChecked) ||
+                        (p.Date.ToLocalTime().ToString("d").Contains(sender.Text.ToLower()) && (bool)DayCheckBox.IsChecked) ||
+                        (p.Date.ToLocalTime().ToString("t").Contains(sender.Text.ToLower()) && (bool)HourCheckBox.IsChecked) ||
+                        (p.Total.ToString().Contains(sender.Text.ToLower()) && (bool)TotalCheckBox.IsChecked));
+            }
         }
 
-       
 
-       
+
+
+
 
         private void CalendarView_SelectedDatesChanged(CalendarView sender, CalendarViewSelectedDatesChangedEventArgs args)
         {
@@ -68,9 +71,10 @@ namespace Point.Views
 
         private void AllSales_Click(object sender, RoutedEventArgs e)
         {
+            DataGrid.Visibility = Visibility.Visible;
             GridDay.Visibility = Visibility.Collapsed;
             salesViewGrid.Visibility = Visibility.Visible;
-
+            UpdateTable();
         }
     }
 

@@ -8,7 +8,8 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using System.Diagnostics;
-
+using Windows.UI.Xaml.Media;
+using Windows.UI;
 namespace Point.Views
 {
     
@@ -39,18 +40,31 @@ namespace Point.Views
 
         private void LoginTapped(object sender, RoutedEventArgs e)
         {
-            LoginModal.IsModal = true;
+            if (App.isAdminLoggedIn)
+            {
+                App.isAdminLoggedIn = false;
+                MyHamburgerMenu.NavigationService.Refresh();
+                LoginTextBlock.Text = "Administrador";
+                LoginTextBlock.Foreground = new SolidColorBrush(Colors.White);
+                LoginIcon.Foreground = new SolidColorBrush(Colors.White);
+            }
+            else
+            {
+                LoginModal.IsModal = true;
+                LoginTextBlock.Text = "Cerrar sesion";
+                LoginTextBlock.Foreground = new SolidColorBrush(Colors.Gray);
+                LoginIcon.Foreground = new SolidColorBrush(Colors.Gray);
+
+            }
         }
 
         private void LoginHide(object sender, System.EventArgs e)
         {
-            LoginButton.IsEnabled = true;
             LoginModal.IsModal = false;
         }
 
         private void LoginLoggedIn(object sender, EventArgs e)
         {
-            LoginButton.IsEnabled = false;
             LoginModal.IsModal = false;
             App.isAdminLoggedIn = true;
             MyHamburgerMenu.NavigationService.Refresh();

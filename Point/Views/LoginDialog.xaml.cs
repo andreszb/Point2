@@ -25,6 +25,7 @@ namespace Point.Views
             if (Array.Exists(passwords, pass => pass.Equals(PasswordTextBox.Password)))
             {
                 LoggedIn?.Invoke(this, EventArgs.Empty);
+                PasswordTextBox.Password = String.Empty;
             } else
             {
                 PasswordTextBox.Foreground = new SolidColorBrush(Colors.Red);

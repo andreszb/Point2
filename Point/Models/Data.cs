@@ -30,10 +30,8 @@ namespace Point.Model
                 db.CreateTable<Customer>();
                 db.CreateTable<Item>();
                 db.CreateTable<Sale>();
-                db.CreateTable<SalesByDay>();
-                
+                db.CreateTable<SalesByDay>();              
             }
-
         }
 
 
@@ -98,6 +96,26 @@ namespace Point.Model
 
         }
 
+        public void UpdateCustomer(Customer customer)
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                db.Update(customer);
+            }
+
+        }
+
+        public void DeleteCustomer(Customer customer)
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                db.Delete(customer);
+            }
+
+        }
+
         public void deleteItem(Item item)
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
@@ -106,25 +124,10 @@ namespace Point.Model
                 db.Delete(item);
             }
         }
-
-        public void addNewDebt(string Name, double Debt, string Info, string Items)
-        {
-            using (var db = new SQLite.Net.SQLiteConnection(new
-              SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-            {
-                var s = db.Insert(new Customer()
-                {
-                    Name = Name,
-                    Debt = Debt,
-                    Info = Info,
-                    Items = Items,
-                });
-            }
-        }
+        
 
         public void addNewSale(CurrentSale sale)
         {
-            Debug.WriteLine(sale.CustomerName);
            if (!String.IsNullOrEmpty(sale.CustomerName))
             {
                 using (var db = new SQLite.Net.SQLiteConnection(new
@@ -135,8 +138,12 @@ namespace Point.Model
                         Name = sale.CustomerName,
                         Items = sale.getItems(),
                         Debt = sale.total,
-                        Info = sale.ContactInfo,
-                        Date = DateTime.Now
+                        Address = sale.Address,
+                        PhoneNumber = sale.PhoneNumber,
+                        Notes = sale.Notes,
+                        Date = DateTime.Now,
+                        PayedDebt = 0,
+                        Total = -sale.total                       
                     });
                 }
             } 
@@ -146,10 +153,11 @@ namespace Point.Model
                 var s = db.Insert(new Sale()
                 {
                     Items = sale.getItems(),
-                    Total = sale.total,
+                    Total = String.IsNullOrEmpty(sale.CustomerName) ? sale.total : -sale.total,
                     Date = DateTime.Now
                 });
             }
+            sale.addCurrentSaleToDB();
         }
 
         public List<ItemAsStrings> getSalesByDay(DateTime date)
@@ -186,15 +194,29 @@ namespace Point.Model
         [NotNull]
         public String Name { get; set; }
 
+        [MaxLength(100)]
         [NotNull]
-        public Double Debt { get; set; }
+        public String Address { get; set; }
 
         [MaxLength(100)]
         [NotNull]
-        public String Info { get; set; }
+        public String PhoneNumber { get; set; }
+
+        [MaxLength(100)]
+        [NotNull]
+        public String Notes { get; set; }
 
         [NotNull]
         public String Items { get; set; }
+
+        [NotNull]
+        public Double Debt { get; set; }
+
+        [NotNull]
+        public Double PayedDebt { get; set; }
+
+        [NotNull]
+        public Double Total { get; set; }      
 
         [NotNull]
         public DateTime Date { get; set; }
@@ -223,6 +245,7 @@ namespace Point.Model
         public Int32 Num { get; set; }
         [NotNull]
         public DateTime DateAdded { get; set; }
+
         [Ignore]
         public string Description
         {
@@ -232,6 +255,8 @@ namespace Point.Model
                 return Type + "\t" + Size + "\t" + Code + "\t" + Brand + "\t" + String.Format(culture, "{0:C2}", Price);
             }
         }
+
+        [Ignore]
         public string ShortDescription
         {
             get
@@ -280,7 +305,7 @@ namespace Point.Model
             foreach (string s in rows)
             {
                 string[] cols = s.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
-                list.Add(new ItemAsStrings() { qty = cols[0], brand = cols[1], model = cols[2], color = cols[3], size = cols[4], price = cols[5] });
+                list.Add(new ItemAsStrings() { qty = cols[0], total = cols[1], brand = cols[2], model = cols[3], color = cols[4], size = cols[5], price = cols[6] });
             }
             return list;
         }      
@@ -289,13 +314,13 @@ namespace Point.Model
 
     public class ItemAsStrings
     {
-        public string qty { get; set; }
+        public string qty   { get; set; }
         public string brand { get; set; }
         public string model { get; set; }
         public string color { get; set; }
-        public string size { get; set; }
+        public string size  { get; set; }
         public string price { get; set; }
-
+        public string total { get; set; }
     }
 
 
@@ -306,7 +331,9 @@ namespace Point.Model
         {
             items = new ObservableCollection<uniqueItem>();
             CustomerName = "";
-            ContactInfo = "";
+            Address = "";
+            PhoneNumber = "";
+            Notes = "";
         }
 
         public  void addCurrentSaleToDB()
@@ -321,7 +348,10 @@ namespace Point.Model
 
         public ObservableCollection<uniqueItem> items { get; set; }
         public string CustomerName { get; set; }
-        public string ContactInfo { get; set; }
+        public string Address { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Notes { get; set; }
+
 
         public class uniqueItem
         {
@@ -373,50 +403,46 @@ namespace Point.Model
                     SalesByDay today = (from s in db.Table<SalesByDay>() where s.Day == stringDate select s).FirstOrDefault();
                     if (today == null)
                     {
-                        db.Insert(new SalesByDay() { Day = stringDate, ItemsString = "\n1\t" + item.Description, Total = item.Price });
+                        db.Insert(new SalesByDay() { Day = stringDate, ItemsString = "\n1\t" + item.Price + '\t' + item.Description, Total = item.Price });
                     }
                     else
                     {
-                        if (today.ItemsString.Contains(item.Description))
+                        string[] AllItems = today.ItemsString.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                        for (int i = 0; i < AllItems.Length; i++)
                         {
-                            int index = today.ItemsString.IndexOf(item.Description);
-                            string numAsString = "";
-                            int i;
-                            for (i = index - 2; !today.ItemsString[i].Equals('\n'); i--)
+                            if (AllItems[i].Contains(item.Description))
                             {
-                                numAsString += today.ItemsString[i];
+                                AllItems[i] = increaseStringByOne(AllItems[i]);
+                                today.ItemsString = String.Join("\n", AllItems);
+                                today.Total += item.Price;
+                                db.Update(today);
+                                return;
                             }
-                            string firstString = today.ItemsString.Substring(0, i + 1);
-                            string secondString = today.ItemsString.Substring(index - 1);
-                            int newNum = int.Parse(numAsString);
-                            newNum++;
-                            string newNumAsString = newNum.ToString();
-                            today.ItemsString = firstString + newNumAsString + secondString;
-
-                        }
-                        else
-                        {
-                            today.ItemsString += "\n1\t" + item.Description;
                         }
                         today.Total += item.Price;
-                        db.Update(today);
+                        db.Update(today);                        
                     }
                 }
             }
 
-
+            private String increaseStringByOne(String str)
+            {
+                string[] col = str.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
+                col[0] = (int.Parse(col[0]) + 1).ToString();
+                col[1] = (double.Parse(col[1]) + item.Price).ToString();
+                return String.Join("\t", col);
+            }
         }
 
         public string getItems()
         {
             string returnString = "";
-            CultureInfo culture = new CultureInfo("es-MX");
             foreach (uniqueItem ui in items)
             {
-                returnString += ui.qty + ui.item.Description;
+                returnString += ui.qty + ui.item.Description + "\r";
             }
             return returnString;
-        }
+        }        
 
         public double total
         {

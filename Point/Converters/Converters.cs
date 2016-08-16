@@ -62,5 +62,22 @@ namespace Point.Converters
         }
     }
 
+    public class StringToCurrencyFormatConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value == null)
+                return null;
+
+            CultureInfo culture = new CultureInfo("es-MX");
+            return String.Format(culture, "{0:C2}", double.Parse(value as string));
+        }
+
+        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 
 }

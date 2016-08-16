@@ -19,15 +19,11 @@ using System.Globalization;
 
 namespace Point.Views
 {
-
     public sealed partial class Inventory : Page
     {
-        private bool? brandCB {get;set;} 
         private Data data = new Data();
-        public CurrentSale currentSale = new CurrentSale();
-        private Item selectedItemToEdit;
-
-            
+        private Item SelectedItemToEdit;
+        public CurrentSale Cart = new CurrentSale();
 
         public Inventory()
         {
@@ -39,43 +35,212 @@ namespace Point.Views
             UpdateTable();
             if (App.isAdminLoggedIn)
             {
-                editItemButton.Visibility = Visibility.Visible;
-                newItemButton.Visibility = Visibility.Visible;
+                EditItemButton.Visibility = Visibility.Visible;
+                NewItemButton.Visibility = Visibility.Visible;
             } else
             {
-                editItemButton.Visibility = Visibility.Collapsed;
-                newItemButton.Visibility = Visibility.Collapsed;
+                EditItemButton.Visibility = Visibility.Collapsed;
+                NewItemButton.Visibility = Visibility.Collapsed;
+            }
+        }
+       
+        #region Command Buttons
+
+        private void NewItemButton_Click(object sender, RoutedEventArgs e)
+        {
+            NISplitView.IsPaneOpen = !NISplitView.IsPaneOpen;  
+        }
+
+        private void EditItemButton_Click(object sender, RoutedEventArgs e)
+        {
+            EISplitView.IsPaneOpen = !EISplitView.IsPaneOpen;
+        }
+
+        private void NewSaleButton_Click(object sender, RoutedEventArgs e)
+        {
+            NSSplitView.IsPaneOpen = !NSSplitView.IsPaneOpen;
+            // If the pane is opened, deselect item from datagrid and clear previous data.
+            if (NSSplitView.IsPaneOpen)
+            {
+                NSCancelButton_Click(null, null);
+                DataGrid.SelectedItem = null;
             }
         }
 
-        private void UpdateTable()
-        { 
-            DataGrid.ItemsSource = data.getItems();
-        }
+        #endregion
 
-        private void newItemButton_Click(object sender, RoutedEventArgs e)
-        {
-            newItemSplitView.IsPaneOpen = !newItemSplitView.IsPaneOpen;
-        }
+        #region New Item Event Handlers & Methods
 
-        private void addNewItem_Click(object sender, RoutedEventArgs e)
+        private void NIAddButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(TypeBox.Text) && !string.IsNullOrWhiteSpace(SizeBox.Text) && !string.IsNullOrWhiteSpace(CodeBox.Text) && !string.IsNullOrWhiteSpace(BrandBox.Text)  && !string.IsNullOrWhiteSpace(PriceBox.Text) && !string.IsNullOrWhiteSpace(NumBox.Text))
+            // Check all fields have a value.
+            if (!string.IsNullOrWhiteSpace(NITypeBox.Text) && !string.IsNullOrWhiteSpace(NISizeBox.Text) && !string.IsNullOrWhiteSpace(NICodeBox.Text) && !string.IsNullOrWhiteSpace(NIBrandBox.Text)  && !string.IsNullOrWhiteSpace(NIPriceBox.Text) && !string.IsNullOrWhiteSpace(NINumBox.Text))
             {
                 data.addNewItem(
-                    Type: TypeBox.Text,
-                    Size: SizeBox.Text,
-                    Code: CodeBox.Text,
-                    Brand: BrandBox.Text,
-                    Price: double.Parse(PriceBox.Text),
-                    Num: int.Parse(NumBox.Text)
+                    Type: NITypeBox.Text,
+                    Size: NISizeBox.Text,
+                    Code: NICodeBox.Text,
+                    Brand: NIBrandBox.Text,
+                    Price: double.Parse(NIPriceBox.Text),
+                    Num: int.Parse(NINumBox.Text)
                 );
-                cancelNewItem_Click(null, null);                
+                NICancelButton_Click(null, null);                
+                UpdateTable();
+            } else
+            {
+                NIErrorTextBlock.Visibility = Visibility.Visible;
+            }
+        }
+
+        // Clears all fields.
+        private void NICancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            NITypeBox.Text = String.Empty;
+            NISizeBox.Text = String.Empty;
+            NICodeBox.Text = String.Empty;
+            NIBrandBox.Text = String.Empty;
+            NIPriceBox.Text = String.Empty;
+            NINumBox.Text = String.Empty;
+            NIErrorTextBlock.Visibility = Visibility.Collapsed;
+        }
+
+        #endregion
+
+        #region New Sale Event Handlers & Methods
+
+        private void UpdateCart()
+        {
+            CultureInfo culture = new CultureInfo("es-MX");
+            NSTotalTextBlock.Text = String.Format(culture, "{0:C2}", Cart.total);
+            NSCartList.ItemsSource = null;
+            NSCartList.ItemsSource = Cart.items;
+        }
+
+        private void NSAcceptButton_Click(object sender, RoutedEventArgs e)
+        {
+            data.addNewSale(Cart);
+            NSCancelButton_Click(null, null);
+            UpdateTable();
+        }
+
+        private void NSCancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            Cart = new CurrentSale();
+            NSTitleTextBlock.Text = "Nueva venta";
+            NSCustomerNameTextBlock.Text = String.Empty;
+            NSCustomerNameTextBlock.Visibility = Visibility.Collapsed;
+            UpdateCart();
+        }
+
+        // Deletes one item from the cart.
+        private void NSCartList_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            
+            if (e.ClickedItem != null)
+            {
+                CurrentSale.uniqueItem itemClicked = e.ClickedItem as CurrentSale.uniqueItem;
+                if (itemClicked.intQty > 1)
+                {
+                    itemClicked.intQty--;
+                }
+                else
+                {
+                    Cart.items.Remove(itemClicked);
+                }
+                UpdateCart();
+            }
+        }
+
+        private async void NSCustomerButton_Click(object sender, RoutedEventArgs e)
+        {
+            CustomerDialog Dialog = new CustomerDialog();
+            await Dialog.ShowAsync();
+            if (!String.IsNullOrEmpty(Dialog.CustomerName))
+            {
+                NSTitleTextBlock.Text = "Nueva deuda";
+                Cart.CustomerName = Dialog.CustomerName;
+                Cart.Address = Dialog.AddressInfo;
+                Cart.PhoneNumber = Dialog.PhoneInfo;
+                Cart.Notes = Dialog.NotesInfo;
+                NSCustomerNameTextBlock.Text = Dialog.CustomerName;
+                NSCustomerNameTextBlock.Visibility = Visibility.Visible;
+            }
+        }
+
+        #endregion
+
+        #region Edit Item Event Handler & Methods
+
+        private void EIConfirmButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedItemToEdit != null)
+            {
+                SelectedItemToEdit.Type = EITypeBox.Text;
+                SelectedItemToEdit.Size = EISizeBox.Text;
+                SelectedItemToEdit.Code = EICodeBox.Text;
+                SelectedItemToEdit.Price = double.Parse(EIPriceBox.Text);
+                SelectedItemToEdit.Num = int.Parse(EINumBox.Text);
+                data.updateItem(SelectedItemToEdit);
                 UpdateTable();
             }
         }
-      
-        private void textChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+
+        private void EICancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            SelectedItemToEdit = null;
+            EITypeBox.Text = String.Empty;
+            EISizeBox.Text = String.Empty;
+            EICodeBox.Text = String.Empty;
+            EIBrandBox.Text = String.Empty;
+            EIPriceBox.Text = String.Empty;
+            EINumBox.Text = String.Empty;
+            DataGrid.SelectedItem = null;
+        }
+
+        private void EIConfirmDeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedItemToEdit != null)
+            {
+                data.deleteItem(SelectedItemToEdit);
+                EICancelButton_Click(null, null);
+                UpdateTable();
+                EIDeleteFlyout.Hide();
+            }
+        }
+
+        #endregion
+
+        //Gets inventory data from database and sets it as the datagrid's source.
+        private void UpdateTable()
+        {
+            if (DataGrid.SelectedColumn != null) {
+                DataGridColumnBase Column = DataGrid.SelectedColumn;
+                DataGrid.ItemsSource = data.getItems();
+                DataGrid.SelectColumn(Column);
+                DataGrid.SelectColumn(Column);
+            } else
+            {
+                DataGrid.ItemsSource = data.getItems();
+            }
+        }
+
+        
+
+        // Takes a textbox's input and makes sure the content can still be parsed to a double when adding a new character. 
+        // Stops the user from setting the content to anything other than a number.
+        private void CheckDouble(TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            double dtemp;
+            // If the condition fails, it removes the character.
+            if (!double.TryParse(sender.Text, out dtemp) && sender.Text != "")
+            {
+                int pos = sender.SelectionStart - 1;
+                sender.Text = sender.Text.Remove(pos, 1);
+                sender.SelectionStart = pos;
+            }
+        }
+
+        private void TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
@@ -89,176 +254,46 @@ namespace Point.Views
             }
         }
 
-        private void NewSaleButton_Click(object sender, RoutedEventArgs e)
+        private void AddToCart(object sender, NavigationListEventArgs e)
         {
-            NewSaleSplitView.IsPaneOpen = !NewSaleSplitView.IsPaneOpen;
-            if (NewSaleSplitView.IsPaneOpen)
+            Item SelectedItem = DataGrid.SelectedItem as Item;
+
+            //If a new sale is active, add selected item to the cart.
+            if (NSSplitView.IsPaneOpen)
             {
-                cancelNewSale_Click(null,null);
                 DataGrid.SelectedItem = null;
-            }           
-        }
-
-        private void updateNewSalePane()
-        {
-            CultureInfo culture = new CultureInfo("es-MX"); 
-            totalTextBlock.Text = String.Format(culture, "{0:C2}", currentSale.total);
-            cartListView.ItemsSource = null;
-            cartListView.ItemsSource = currentSale.items;
-        }
-
-        private void addToCurrentSale(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
-        {
-            if (NewSaleSplitView.IsPaneOpen)
-            {
- 
-                var j = DataGrid.SelectedItem as Item;
-                if (j != null) {
-                    if (j.Num > 0)
+                if (SelectedItem != null)
+                {
+                    if (SelectedItem.Num > 0)//check this later
                     {
-                        //var itemInSale = currentSale.items.First(x => (x as CurrentSale.uniqueItem).item == j);
-                        currentSale.addItem(j);
-                        updateNewSalePane();
+                        Cart.addItem(SelectedItem);
+                        UpdateCart();
                     }
                 }
-                DataGrid.SelectedItem = null;
+
             }
-            else if (EditItemSplitView.IsPaneOpen)
+            else if (EISplitView.IsPaneOpen)
             {
-                if (DataGrid.SelectedItem != null)
+                if (SelectedItem != null)
                 {
-                    deleteItemFromDBButton.Visibility = Visibility.Visible;
-                    if (selectedItemToEdit != DataGrid.SelectedItem)
+                    EIDeleteButton.Visibility = Visibility.Visible;
+                    if (SelectedItemToEdit != SelectedItem)
                     {
-                        selectedItemToEdit = DataGrid.SelectedItem as Item;
-                        EditTypeBox.Text = selectedItemToEdit.Type;
-                        EditSizeBox.Text = selectedItemToEdit.Size;
-                        EditCodeBox.Text = selectedItemToEdit.Code;
-                        EditBrandBox.Text = selectedItemToEdit.Brand;
-                        EditPriceBox.Text = selectedItemToEdit.Price.ToString();
-                        EditNumBox.Text = selectedItemToEdit.Num.ToString();
+                        SelectedItemToEdit = SelectedItem as Item;
+                        EITypeBox.Text = SelectedItemToEdit.Type;
+                        EISizeBox.Text = SelectedItemToEdit.Size;
+                        EICodeBox.Text = SelectedItemToEdit.Code;
+                        EIBrandBox.Text = SelectedItemToEdit.Brand;
+                        EIPriceBox.Text = SelectedItemToEdit.Price.ToString();
+                        EINumBox.Text = SelectedItemToEdit.Num.ToString();
                     }
-                } else
-                {
-                    deleteItemFromDBButton.Visibility = Visibility.Collapsed;
                 }
-                
-            }
-            
-        }
-
-        private void checkDouble(TextBox sender, TextBoxTextChangingEventArgs args)
-        {
-            double dtemp;
-            if (!double.TryParse(sender.Text, out dtemp) && sender.Text != "")
-            {
-                int pos = sender.SelectionStart - 1;
-                sender.Text = sender.Text.Remove(pos, 1);
-                sender.SelectionStart = pos;
-            }
-        }
-
-        private void cancelNewItem_Click(object sender, RoutedEventArgs e)
-        {
-            TypeBox.Text = String.Empty;
-            SizeBox.Text = String.Empty;
-            CodeBox.Text = String.Empty;
-            BrandBox.Text = String.Empty;
-            PriceBox.Text = String.Empty;
-            NumBox.Text = String.Empty;            
-        }
-
-        private void cancelNewSale_Click(object sender, RoutedEventArgs e)
-        {
-            currentSale = new CurrentSale();
-            SalePaneTitle.Text = "Nueva venta";
-            ClientNameTextBlock.Text = String.Empty;
-            ClientNameTextBlock.Visibility = Visibility.Collapsed;
-            updateNewSalePane();
-        }
-
-        private void cartListView_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            if (e.ClickedItem != null)
-            {
-                CurrentSale.uniqueItem itemClicked = e.ClickedItem as CurrentSale.uniqueItem;
-                if (itemClicked.intQty > 1)
+                else
                 {
-                    itemClicked.intQty--;
-                } else
-                {
-                    currentSale.items.Remove(itemClicked);
+                    EIDeleteButton.Visibility = Visibility.Collapsed;
                 }
-                updateNewSalePane();
             }
         }
-
-        private void editItemButton_Click(object sender, RoutedEventArgs e)
-        {
-            EditItemSplitView.IsPaneOpen = !EditItemSplitView.IsPaneOpen;
-
-        }
-
-        private void confirmEditButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (selectedItemToEdit != null)
-            {
-                selectedItemToEdit.Type = EditTypeBox.Text;
-                selectedItemToEdit.Size = EditSizeBox.Text;
-                selectedItemToEdit.Code = EditCodeBox.Text;
-                selectedItemToEdit.Size = EditSizeBox.Text;
-                selectedItemToEdit.Price = double.Parse(EditPriceBox.Text);
-                selectedItemToEdit.Num = int.Parse(EditNumBox.Text);
-                data.updateItem(selectedItemToEdit);
-                UpdateTable();
-            }
-        }
-
-        private void cancelEditItem_Click(object sender, RoutedEventArgs e)
-        {
-            selectedItemToEdit = null;
-            EditTypeBox.Text = String.Empty;
-            EditSizeBox.Text = String.Empty;
-            EditCodeBox.Text = String.Empty;
-            EditBrandBox.Text = String.Empty;
-            EditPriceBox.Text = String.Empty;
-            EditNumBox.Text = String.Empty;          
-            DataGrid.SelectedItem = null;
-        }
-
-        private void deleteItemFromDBButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (selectedItemToEdit != null)
-            {
-                data.deleteItem(selectedItemToEdit);
-                cancelEditItem_Click(null, null);
-                UpdateTable();
-                deleteFlyout.Hide();
-            
-            }
-        }
-
-        private void addNewSaleButton_Click(object sender, RoutedEventArgs e)
-        {
-            data.addNewSale(currentSale);
-            cancelNewSale_Click(null, null);
-            UpdateTable();
-        }
-
-        private async void CustomerButton_Click(object sender, RoutedEventArgs e)
-        {
-            CustomerDialog dialog = new CustomerDialog();
-            await dialog.ShowAsync();
-            if (!String.IsNullOrEmpty(dialog.CustomerName))
-            {
-                SalePaneTitle.Text = "Nueva deuda";
-                currentSale.CustomerName = dialog.CustomerName;
-                currentSale.ContactInfo = dialog.ContactInfo;
-                ClientNameTextBlock.Text = dialog.CustomerName;
-                ClientNameTextBlock.Visibility = Visibility.Visible;
-            }
-        }
-
     }
 
 

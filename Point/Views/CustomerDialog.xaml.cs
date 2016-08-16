@@ -20,13 +20,17 @@ namespace Point.Views
     public sealed partial class CustomerDialog : ContentDialog
     {
         public string CustomerName { get; set; }
-        public string ContactInfo { get; set; }
+        public string AddressInfo { get; set; }
+        public string PhoneInfo { get; set; }
+        public string NotesInfo { get; set; }
 
         public CustomerDialog()
         {
             this.InitializeComponent();
             CustomerName = "";
-            ContactInfo = "";
+            AddressInfo = "";
+            PhoneInfo = "";
+            NotesInfo = "";
         }
 
         private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -39,7 +43,9 @@ namespace Point.Views
             } else
             {
                 CustomerName = NameBox.Text;
-                ContactInfo = InfoBox.Text;
+                AddressInfo = AddressBox.Text;
+                PhoneInfo = PhoneBox.Text;
+                NotesInfo = NoteBox.Text;
             }
         }
 

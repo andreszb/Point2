@@ -57,14 +57,15 @@
             <Controls:HamburgerMenu.SecondaryButtons>
                 <!--  login button  -->
                 <Controls:HamburgerButtonInfo x:Name="LoginButton"
-                                              MaxWidth="48"
                                               ButtonType="Command"
                                               Tapped="LoginTapped">
                     <StackPanel Orientation="Horizontal">
-                        <SymbolIcon Width="48"
+                        <SymbolIcon Name="LoginIcon"
+                            Width="48"
                                 Height="48"
                                 Symbol="Permissions" />
-                        <TextBlock Margin="12,0,0,0"
+                        <TextBlock Name="LoginTextBlock"
+                            Margin="12,0,0,0"
                                VerticalAlignment="Center"
                                Text="Administrador" />
                     </StackPanel>

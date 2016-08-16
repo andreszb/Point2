@@ -20,6 +20,8 @@
         <conv:DateFormatConverter x:Name="DateToStringFormatConverter" />
         <conv:TimeFormatConverter x:Name="TimeToStringFormatConverter" />
         <conv:DoubleToCurrencyFormatConverter x:Name="DoubleToStringFormatConverter" />
+        <conv:StringToCurrencyFormatConverter x:Name="StringToCurrencyFormatConverter" />
+
 
     </Page.Resources>
 
@@ -91,12 +93,6 @@
                 </AppBarButton>
             </controls:PageHeader.PrimaryCommands>
 
-            <!--  secondary commands  -->
-            <controls:PageHeader.SecondaryCommands>
-                <AppBarButton Click="{x:Bind ViewModel.GotoSettings}" Label="Settings" />
-                <AppBarButton Click="{x:Bind ViewModel.GotoPrivacy}" Label="Privacy" />
-                <AppBarButton Click="{x:Bind ViewModel.GotoAbout}" Label="About" />
-            </controls:PageHeader.SecondaryCommands>
 
         </controls:PageHeader>
         <Grid x:Name="salesViewGrid"
@@ -106,12 +102,37 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <AutoSuggestBox PlaceholderText="Buscar" TextChanged="textChanged" />
+            <Grid Name="SearchBarGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition Width="150" />
+                </Grid.ColumnDefinitions>
+                <AutoSuggestBox Name="SearchBar"
+                                PlaceholderText="Buscar"
+                                TextChanged="TextChanged" />
+                <Button Name="FilterButton"
+                        Grid.Column="1"
+                        Width="150"
+                        Content="Filtro">
+                    <Button.Flyout>
+                        <Flyout>
+                            <ItemsControl>
+                                <CheckBox Name="DayCheckBox" IsChecked="True">Dia</CheckBox>
+                                <CheckBox Name="HourCheckBox" IsChecked="False">Hora</CheckBox>
+                                <CheckBox Name="TotalCheckBox" IsChecked="False">Total</CheckBox>
+                                <CheckBox Name="InfoCheckBox" IsChecked="False">Info</CheckBox>
+
+                            </ItemsControl>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+            </Grid>
 
             <DataGridControl:DataGrid x:Name="DataGrid"
                                       Grid.Row="1"
                                       DataGridControl:DataGridExtensions.UseSingleSelectionAndDeselection="True"
-                                      DefaultOrderIndex="0">
+                                      DefaultOrderIndex="0"
+                                      Visibility="Collapsed">
                 <DataGridControl:DataGrid.Columns>
                     <DataGridControl:DataGridTextColumn Width="3*"
                                                         Binding="{Binding Date,
@@ -135,9 +156,7 @@
                         <StackPanel Name="DetailsStackPanel" Visibility="Visible">
                             <TextBlock FontWeight="Bold" Text="Detalles: " />
                             <TextBlock Text="{Binding Id}" />
-                            <StackPanel>
-                                <TextBlock Text="{Binding Items}" />
-                            </StackPanel>
+                            <TextBlock Text="{Binding Items}" />
                         </StackPanel>
                     </DataTemplate>
                 </DataGridControl:DataGrid.ItemDetailsTemplate>
@@ -145,7 +164,7 @@
         </Grid>
         <Grid x:Name="GridDay"
               Grid.Row="1"
-              Visibility="Collapsed">
+              Visibility="Visible">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
@@ -180,6 +199,11 @@
                                                         Binding="{Binding price}"
                                                         CanSort="True"
                                                         Header="Precio" />
+                    <DataGridControl:DataGridTextColumn Width="2*"
+                                                        Binding="{Binding total,
+                                                                          Converter={StaticResource StringToCurrencyFormatConverter}}"
+                                                        CanSort="True"
+                                                        Header="Total" />
                 </DataGridControl:DataGrid.Columns>
                 <DataGridControl:DataGrid.ItemDetailsTemplate>
                     <DataTemplate>
