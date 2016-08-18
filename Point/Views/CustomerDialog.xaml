@@ -28,7 +28,10 @@
                    Text="Nombre: " />
         <AutoSuggestBox Name="NameBox"
                         Grid.Column="1"
-                        VerticalAlignment="Center" />
+                        VerticalAlignment="Center"
+                        QuerySubmitted="NameBox_QuerySubmitted"
+                        SuggestionChosen="NameBox_SuggestionChosen"
+                        TextChanged="NameBox_TextChanged" />
         <TextBlock Grid.Row="1"
                    Grid.Column="0"
                    Margin="10"

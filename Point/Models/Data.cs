@@ -18,12 +18,11 @@ namespace Point.Model
     
     class Data
     {
-        private string path;
+        private static string path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
+               "db.sqlite");
         private SQLite.Net.SQLiteConnection db;
         
         public Data() {
-            path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
-               "db.sqlite");
             using (db = new SQLite.Net.SQLiteConnection(new
                SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
             {
@@ -34,27 +33,31 @@ namespace Point.Model
             }
         }
 
-
-
-        public List<Item> getItems()
+        public List<Item> Items
         {
-            using (var db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            get
             {
-                var query = db.Table<Item>();
-                return new List<Item>(query);
+                using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+                {
+                    var query = db.Table<Item>();
+                    return new List<Item>(query);
+                }
             }
         }
 
-        public List<Sale> getSales()
+        public List<Sale> Sales
         {
-            using (var db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            get
             {
-                var query = db.Table<Sale>();
-                return new List<Sale>(query);
+                using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+                {
+                    var query = db.Table<Sale>();
+                    return new List<Sale>(query);
+                }
             }
-        }
+        }      
 
         public List<Customer> getCustomers()
         {
@@ -66,36 +69,20 @@ namespace Point.Model
             }
         }
 
-        public void addNewItem(string Type, string Size, string Code, string Brand, double Price, int Num)
+        public List<Customer> getCustomers(String search)
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+                  SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
             {
-                var s = db.Insert(new Item()
-                {
-                    Type = Type,
-                    Size = Size,
-                    Code = Code,
-                    Brand = Brand,
-                    Price = Price,
-                    Num = Num,
-                    DateAdded = DateTime.Now
-                });
+                var query = (from s in db.Table<Customer>() where s.Name.Contains(search) select s);
+                return new List<Customer>(query);
             }
-
         }
 
+        
 
-        public void updateItem(Item item)
-        {
-            using (var db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-            {
-                db.Update(item);
-            }
 
-        }
-
+        
         public void UpdateCustomer(Customer customer)
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
@@ -115,32 +102,23 @@ namespace Point.Model
             }
 
         }
-
-        public void deleteItem(Item item)
-        {
-            using (var db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-            {
-                db.Delete(item);
-            }
-        }
-        
+       
 
         public void addNewSale(CurrentSale sale)
         {
-           if (!String.IsNullOrEmpty(sale.CustomerName))
+           if (sale.Person != null)
             {
                 using (var db = new SQLite.Net.SQLiteConnection(new
                SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
                 {
                     var s = db.Insert(new Customer()
                     {
-                        Name = sale.CustomerName,
+                        Name = sale.Person.Name,
                         Items = sale.getItems(),
                         Debt = sale.total,
-                        Address = sale.Address,
-                        PhoneNumber = sale.PhoneNumber,
-                        Notes = sale.Notes,
+                        Address = sale.Person.Address,
+                        PhoneNumber = sale.Person.PhoneNumber,
+                        Notes = sale.Person.Notes,
                         Date = DateTime.Now,
                         PayedDebt = 0,
                         Total = -sale.total                       
@@ -153,7 +131,7 @@ namespace Point.Model
                 var s = db.Insert(new Sale()
                 {
                     Items = sale.getItems(),
-                    Total = String.IsNullOrEmpty(sale.CustomerName) ? sale.total : -sale.total,
+                    Total = sale.Person == null ? sale.total : -sale.total,
                     Date = DateTime.Now
                 });
             }
@@ -221,6 +199,11 @@ namespace Point.Model
         [NotNull]
         public DateTime Date { get; set; }
 
+        public override string ToString()
+        {
+            return Name;
+        }
+
     }
 
     public partial class Item
@@ -246,6 +229,9 @@ namespace Point.Model
         [NotNull]
         public DateTime DateAdded { get; set; }
 
+        private static string path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
+               "db.sqlite");
+
         [Ignore]
         public string Description
         {
@@ -263,6 +249,34 @@ namespace Point.Model
             {
                 var culture = new CultureInfo("es-MX");
                 return Type + " " + Size + " " + Code + " " + Brand + " ";
+            }
+        }       
+
+        public void AddToInventory()
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                var s = db.Insert(this);
+            }
+        }
+
+        public void UpdateInInventory()
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                db.Update(this);
+            }
+        }
+
+
+        public void DeleteFromInventory()
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                db.Delete(this);
             }
         }
     }
@@ -308,20 +322,22 @@ namespace Point.Model
                 list.Add(new ItemAsStrings() { qty = cols[0], total = cols[1], brand = cols[2], model = cols[3], color = cols[4], size = cols[5], price = cols[6] });
             }
             return list;
-        }      
+        }
 
+        
     }
 
     public class ItemAsStrings
-    {
-        public string qty   { get; set; }
-        public string brand { get; set; }
-        public string model { get; set; }
-        public string color { get; set; }
-        public string size  { get; set; }
-        public string price { get; set; }
-        public string total { get; set; }
-    }
+        {
+            public string qty { get; set; }
+            public string brand { get; set; }
+            public string model { get; set; }
+            public string color { get; set; }
+            public string size { get; set; }
+            public string price { get; set; }
+            public string total { get; set; }
+        }
+
 
 
     public class CurrentSale
@@ -329,11 +345,7 @@ namespace Point.Model
         
         public CurrentSale()
         {
-            items = new ObservableCollection<uniqueItem>();
-            CustomerName = "";
-            Address = "";
-            PhoneNumber = "";
-            Notes = "";
+            items = new ObservableCollection<uniqueItem>();            
         }
 
         public  void addCurrentSaleToDB()
@@ -347,11 +359,45 @@ namespace Point.Model
 
 
         public ObservableCollection<uniqueItem> items { get; set; }
-        public string CustomerName { get; set; }
-        public string Address { get; set; }
-        public string PhoneNumber { get; set; }
-        public string Notes { get; set; }
+        public Customer Person { get; set; }  
+        /*
+        public class UniqueItem : Item
+        {
+            public int qty;
 
+            public void addUniqueItemToSalesByDay()
+            {
+                for (int i = 0; i < qty; i++)
+                {
+                    //addNewItemToSaleByDay(this);
+                }
+            }
+
+            public void deleteUniqueItemFromInventory()
+            {
+                for (int i = 0; i < qty; i++)
+                {
+                    //deleteItemFromInventory(item);
+                }
+            }
+
+            private void deleteItemFromInventory(Item item)
+            {
+                if (item.Num > 0)
+                {
+                    using (var db = new SQLite.Net.SQLiteConnection(new
+   SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+                    {
+                        item.Num--;
+                        db.Update(item);
+                    }
+                }
+
+
+            }
+
+        } 
+        */    
 
         public class uniqueItem
         {
@@ -365,7 +411,7 @@ namespace Point.Model
 
             public void addUniqueItemToSalesByDay()
             {
-                for(int i = 0; i < intQty; i++)
+                for (int i = 0; i < intQty; i++)
                 {
                     addNewItemToSaleByDay(item);
                 }
@@ -381,7 +427,8 @@ namespace Point.Model
 
             private void deleteItemFromInventory(Item item)
             {
-                if (item.Num > 0) {
+                if (item.Num > 0)
+                {
                     using (var db = new SQLite.Net.SQLiteConnection(new
    SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
                     {
@@ -389,7 +436,7 @@ namespace Point.Model
                         db.Update(item);
                     }
                 }
-                
+
 
             }
 

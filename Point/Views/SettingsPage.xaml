@@ -8,15 +8,20 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:Point.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:vm="using:Point.ViewModels" mc:Ignorable="d">
+      xmlns:vm="using:Point.ViewModels"
+      mc:Ignorable="d">
 
     <Page.DataContext>
         <vm:SettingsPageViewModel x:Name="ViewModel" />
     </Page.DataContext>
 
 
-    <RelativePanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
                 <VisualState x:Name="VisualStateNarrow">
@@ -46,16 +51,45 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
+        <!--  header  -->
         <controls:PageHeader x:Name="pageHeader"
                              RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
                              RelativePanel.AlignTopWithPanel="True"
-                             Text="Acerca de la aplicacion">
-        </controls:PageHeader>
+                             Text="Acerca de esta aplicacion" />
 
-        
+        <Grid Grid.Row="1" Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock x:Name="DisplayNameTextBlock"
+                       Grid.Row="0"
+                       Margin="0,0,0,12"
+                       VerticalAlignment="Center"
+                       FontSize="30" HorizontalAlignment="Center"
+                       Text="{Binding AboutPartViewModel.DisplayName}" />
 
-    </RelativePanel>
+            <TextBlock x:Name="PublisherTextBlock"
+                       Grid.Row="1"
+                       Text="Control V&amp;J" FontSize="24" HorizontalAlignment="Center" />
+            <TextBlock x:Name="YearTextBlock"
+                       Grid.Row="2"
+                       Text="2016" FontSize="20" HorizontalAlignment="Center"/>
 
+            <TextBlock x:Name="VersionTextBlock"
+                       Grid.Row="3"
+                       FontSize="18" HorizontalAlignment="Center">
+                <Run>Version</Run>
+                <Run Text="{Binding AboutPartViewModel.Version}" />
+            </TextBlock>
+
+        </Grid>
+
+
+
+    </Grid>
 </Page>
 

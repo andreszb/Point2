@@ -35,7 +35,7 @@ namespace Point.Views
 
         private void UpdateTable()
         {
-            DataGrid.ItemsSource = data.getSales();
+            DataGrid.ItemsSource = data.Sales;
         }
 
         private void TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)

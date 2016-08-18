@@ -83,7 +83,7 @@
                                 Symbol="Setting" />
                         <TextBlock Margin="12,0,0,0"
                                VerticalAlignment="Center"
-                               Text="Settings" />
+                               Text="Acerca" />
                     </StackPanel>
                 </Controls:HamburgerButtonInfo>
             </Controls:HamburgerMenu.SecondaryButtons>

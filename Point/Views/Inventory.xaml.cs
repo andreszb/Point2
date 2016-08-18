@@ -76,14 +76,15 @@ namespace Point.Views
             // Check all fields have a value.
             if (!string.IsNullOrWhiteSpace(NITypeBox.Text) && !string.IsNullOrWhiteSpace(NISizeBox.Text) && !string.IsNullOrWhiteSpace(NICodeBox.Text) && !string.IsNullOrWhiteSpace(NIBrandBox.Text)  && !string.IsNullOrWhiteSpace(NIPriceBox.Text) && !string.IsNullOrWhiteSpace(NINumBox.Text))
             {
-                data.addNewItem(
-                    Type: NITypeBox.Text,
-                    Size: NISizeBox.Text,
-                    Code: NICodeBox.Text,
-                    Brand: NIBrandBox.Text,
-                    Price: double.Parse(NIPriceBox.Text),
-                    Num: int.Parse(NINumBox.Text)
-                );
+                 var newItem = new Item() {
+                    Type = NITypeBox.Text,
+                    Size = NISizeBox.Text,
+                    Code = NICodeBox.Text,
+                    Brand = NIBrandBox.Text,
+                    Price = double.Parse(NIPriceBox.Text),
+                    Num = int.Parse(NINumBox.Text)
+                };
+                newItem.AddToInventory();
                 NICancelButton_Click(null, null);                
                 UpdateTable();
             } else
@@ -155,14 +156,11 @@ namespace Point.Views
         {
             CustomerDialog Dialog = new CustomerDialog();
             await Dialog.ShowAsync();
-            if (!String.IsNullOrEmpty(Dialog.CustomerName))
+            if (Dialog.Debtor != null)
             {
                 NSTitleTextBlock.Text = "Nueva deuda";
-                Cart.CustomerName = Dialog.CustomerName;
-                Cart.Address = Dialog.AddressInfo;
-                Cart.PhoneNumber = Dialog.PhoneInfo;
-                Cart.Notes = Dialog.NotesInfo;
-                NSCustomerNameTextBlock.Text = Dialog.CustomerName;
+                Cart.Person = Dialog.Debtor;
+                NSCustomerNameTextBlock.Text = Dialog.Debtor.Name;
                 NSCustomerNameTextBlock.Visibility = Visibility.Visible;
             }
         }
@@ -180,7 +178,7 @@ namespace Point.Views
                 SelectedItemToEdit.Code = EICodeBox.Text;
                 SelectedItemToEdit.Price = double.Parse(EIPriceBox.Text);
                 SelectedItemToEdit.Num = int.Parse(EINumBox.Text);
-                data.updateItem(SelectedItemToEdit);
+                SelectedItemToEdit.UpdateInInventory();
                 UpdateTable();
             }
         }
@@ -201,7 +199,7 @@ namespace Point.Views
         {
             if (SelectedItemToEdit != null)
             {
-                data.deleteItem(SelectedItemToEdit);
+                SelectedItemToEdit.DeleteFromInventory();
                 EICancelButton_Click(null, null);
                 UpdateTable();
                 EIDeleteFlyout.Hide();
@@ -215,12 +213,12 @@ namespace Point.Views
         {
             if (DataGrid.SelectedColumn != null) {
                 DataGridColumnBase Column = DataGrid.SelectedColumn;
-                DataGrid.ItemsSource = data.getItems();
+                DataGrid.ItemsSource = data.Items;
                 DataGrid.SelectColumn(Column);
                 DataGrid.SelectColumn(Column);
             } else
             {
-                DataGrid.ItemsSource = data.getItems();
+                DataGrid.ItemsSource = data.Items;
             }
         }
 
