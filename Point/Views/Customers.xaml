@@ -338,14 +338,14 @@
                                     <StackPanel Margin="5" Orientation="Horizontal">
                                         <TextBlock Margin="0,0,5,0"
                                                    FontWeight="Bold"
-                                                   Text="Datos de contacto: " />
-                                        <TextBlock Text="{Binding Info}" />
+                                                   Text="Compras: " />
+                                        <TextBlock Text="{Binding Items}" />
                                     </StackPanel>
                                     <StackPanel Margin="5" Orientation="Horizontal">
                                         <TextBlock Margin="0,0,5,0"
                                                    FontWeight="Bold"
-                                                   Text="Compra: " />
-                                        <TextBlock Text="{Binding Items}" />
+                                                   Text="Pagos: " />
+                                        <TextBlock Text="{Binding PayedDebtInfo}" />
                                     </StackPanel>
                                 </StackPanel>
                             </DataTemplate>

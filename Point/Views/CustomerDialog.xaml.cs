@@ -23,7 +23,6 @@ namespace Point.Views
     {
         
         public Customer Debtor { get; set; }
-        private Data data = new Data();
         private bool isReturningCustomer = false;
         public CustomerDialog()
         {
@@ -61,7 +60,7 @@ namespace Point.Views
                     sender.ItemsSource = null;
                 } else if (isReturningCustomer)
                 {
-                    sender.ItemsSource = data.getCustomers(sender.Text) as List<Customer>;
+                    sender.ItemsSource = Customer.Contains(sender.Text);
                     isReturningCustomer = false;
                     AddressBox.Text = String.Empty;
                     PhoneBox.Text = String.Empty;
@@ -73,7 +72,7 @@ namespace Point.Views
 
                 else
                 {
-                    sender.ItemsSource = data.getCustomers(sender.Text) as List<Customer>;
+                    sender.ItemsSource = Customer.Contains(sender.Text);
                 }
             } 
         }

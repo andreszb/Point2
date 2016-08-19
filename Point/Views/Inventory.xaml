@@ -120,7 +120,7 @@
                             <AutoSuggestBox Name="NICodeBox"
                                             Grid.Row="3"
                                             VerticalAlignment="Center"
-                                            PlaceholderText="Color" />
+                                            PlaceholderText="Modelo" />
                             <AutoSuggestBox Name="NIBrandBox"
                                             Grid.Row="4"
                                             VerticalAlignment="Center"
@@ -151,8 +151,8 @@
                                    HorizontalAlignment="Center"
                                    FontSize="15"
                                    Foreground="Red"
-                                   Visibility="Collapsed"
-                                   Text="Faltan datos" />
+                                   Text="Faltan datos"
+                                   Visibility="Collapsed" />
                         <Button Name="NIAddButton"
                                 Grid.Row="1"
                                 HorizontalAlignment="Stretch"
@@ -172,6 +172,7 @@
             <SplitView.Content>
                 <SplitView Name="NSSplitView"
                            DisplayMode="Inline"
+                           OpenPaneLength="400"
                            PaneBackground="AliceBlue"
                            PanePlacement="Right">
                     <SplitView.Pane>
@@ -220,25 +221,23 @@
                                     <ListView Name="NSCartList"
                                               IsItemClickEnabled="True"
                                               ItemClick="NSCartList_ItemClick"
-                                              ItemsSource="{x:Bind Cart.items}"
                                               SelectionMode="None"
                                               Style="{StaticResource NoAnimations}">
                                         <ListView.ItemTemplate>
                                             <DataTemplate>
-                                                <Grid Width="220" Margin="0">
+                                                <Grid Width="330">
                                                     <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
                                                         <ColumnDefinition Width="*" />
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
-                                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding qty}" />
-                                                        <TextBlock Text="{Binding item.ShortDescription}" />
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="1"
-                                                                HorizontalAlignment="Right"
-                                                                Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding item.Price, Converter={StaticResource DoubleToStringFormatConverter}}" />
-                                                    </StackPanel>
+                                                    <TextBlock Text="{Binding QtyString}" />
+                                                    <TextBlock Grid.Column="1" Text="{Binding Item.ShortDescription}" />
+                                                    <TextBlock Grid.Column="2"
+                                                               HorizontalAlignment="Right"
+                                                               Text="{Binding Item.Price,
+                                                                              Converter={StaticResource DoubleToStringFormatConverter}}" />
+
                                                 </Grid>
                                             </DataTemplate>
                                         </ListView.ItemTemplate>
@@ -336,28 +335,28 @@
                                             <AutoSuggestBox Name="EITypeBox"
                                                             Grid.Row="1"
                                                             VerticalAlignment="Center"
-                                                            PlaceholderText="Prenda" />
+                                                            Header="Prenda" />
                                             <AutoSuggestBox Name="EISizeBox"
                                                             Grid.Row="2"
                                                             VerticalAlignment="Center"
-                                                            PlaceholderText="Tamaño" />
+                                                            Header="Tamaño" />
                                             <AutoSuggestBox Name="EICodeBox"
                                                             Grid.Row="3"
                                                             VerticalAlignment="Center"
-                                                            PlaceholderText="Modelo" />
+                                                            Header="Modelo" />
                                             <AutoSuggestBox Name="EIBrandBox"
                                                             Grid.Row="4"
                                                             VerticalAlignment="Center"
-                                                            PlaceholderText="Marca" />
+                                                            Header="Marca" />
                                             <TextBox Name="EIPriceBox"
                                                      Grid.Row="5"
                                                      VerticalAlignment="Center"
-                                                     PlaceholderText="Precio"
+                                                     Header="Precio"
                                                      TextChanging="CheckDouble" />
                                             <TextBox Name="EINumBox"
                                                      Grid.Row="6"
                                                      VerticalAlignment="Center"
-                                                     PlaceholderText="Número"
+                                                     Header="Número"
                                                      TextChanging="CheckDouble" />
                                         </Grid>
                                     </ScrollViewer>

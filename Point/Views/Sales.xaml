@@ -196,7 +196,8 @@
                                                         CanSort="True"
                                                         Header="Tamano" />
                     <DataGridControl:DataGridTextColumn Width="2*"
-                                                        Binding="{Binding price}"
+                                                        Binding="{Binding price,
+                                                                          Converter={StaticResource StringToCurrencyFormatConverter}}"
                                                         CanSort="True"
                                                         Header="Precio" />
                     <DataGridControl:DataGridTextColumn Width="2*"

@@ -14,142 +14,12 @@ using Template10.Mvvm;
 
 namespace Point.Model
 {
-    
-    
-    class Data
+    public static class ExtensionMethods
     {
         private static string path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
                "db.sqlite");
-        private SQLite.Net.SQLiteConnection db;
-        
-        public Data() {
-            using (db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-            {
-                db.CreateTable<Customer>();
-                db.CreateTable<Item>();
-                db.CreateTable<Sale>();
-                db.CreateTable<SalesByDay>();              
-            }
-        }
 
-        public List<Item> Items
-        {
-            get
-            {
-                using (var db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-                {
-                    var query = db.Table<Item>();
-                    return new List<Item>(query);
-                }
-            }
-        }
-
-        public List<Sale> Sales
-        {
-            get
-            {
-                using (var db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-                {
-                    var query = db.Table<Sale>();
-                    return new List<Sale>(query);
-                }
-            }
-        }      
-
-        public List<Customer> getCustomers()
-        {
-            using (var db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-            {
-                var query = db.Table<Customer>();
-                return new List<Customer>(query);
-            }
-        }
-
-        public List<Customer> getCustomers(String search)
-        {
-            using (var db = new SQLite.Net.SQLiteConnection(new
-                  SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-            {
-                var query = (from s in db.Table<Customer>() where s.Name.Contains(search) select s);
-                return new List<Customer>(query);
-            }
-        }
-
-        
-
-
-        
-        public void UpdateCustomer(Customer customer)
-        {
-            using (var db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-            {
-                db.Update(customer);
-            }
-
-        }
-
-        public void DeleteCustomer(Customer customer)
-        {
-            using (var db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-            {
-                db.Delete(customer);
-            }
-
-        }
-       
-
-        public void addNewSale(CurrentSale sale)
-        {
-           if (sale.Person != null)
-            {
-                using (var db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-                {
-                    var s = db.Insert(new Customer()
-                    {
-                        Name = sale.Person.Name,
-                        Items = sale.getItems(),
-                        Debt = sale.total,
-                        Address = sale.Person.Address,
-                        PhoneNumber = sale.Person.PhoneNumber,
-                        Notes = sale.Person.Notes,
-                        Date = DateTime.Now,
-                        PayedDebt = 0,
-                        Total = -sale.total                       
-                    });
-                }
-            } 
-            using (var db = new SQLite.Net.SQLiteConnection(new
-               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-            {
-                var s = db.Insert(new Sale()
-                {
-                    Items = sale.getItems(),
-                    Total = sale.Person == null ? sale.total : -sale.total,
-                    Date = DateTime.Now
-                });
-            }
-            sale.addCurrentSaleToDB();
-        }
-
-        public List<ItemAsStrings> getSalesByDay(DateTime date)
-        {
-            using (var db = new SQLite.Net.SQLiteConnection(new
-                  SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-            {
-                var stringDate = date.ToLocalTime().ToString("s").Substring(2, 8);
-                SalesByDay today = (from s in db.Table<SalesByDay>() where s.Day == stringDate select s).FirstOrDefault();
-                return today != null ? today.getList() : null;
-            }
-        }     
-
-        public String getTotalFromDayAsString(DateTime date)
+        public static String Total(this DateTime date)
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
                   SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
@@ -158,9 +28,31 @@ namespace Point.Model
                 SalesByDay today = (from s in db.Table<SalesByDay>() where s.Day == stringDate select s).FirstOrDefault();
                 Double val = today != null ? today.Total : 0;
                 CultureInfo culture = new CultureInfo("es-MX");
-                return String.Format(culture,"{0:C2}", val);
+                return String.Format(culture, "{0:C2}", val);
             }
         }
+
+        public static List<StringItem> Sales(this DateTime date)
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+                  SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                var stringDate = date.ToLocalTime().ToString("s").Substring(2, 8);
+                SalesByDay today = new SalesByDay();
+                today = (from s in db.Table<SalesByDay>() where s.Day == stringDate select s).FirstOrDefault();
+                
+                return today != null ? today.Table : null;
+            }
+        }
+
+        public static String IncreaseByOne(this String str)
+        {
+            string[] col = str.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
+            col[0] = (int.Parse(col[0]) + 1).ToString();
+            col[1] = (double.Parse(col[1]) + double.Parse(col[6])).ToString();
+            return String.Join("\t", col);
+        }
+
     }
 
     public partial class Customer
@@ -194,14 +86,95 @@ namespace Point.Model
         public Double PayedDebt { get; set; }
 
         [NotNull]
+        public String PayedDebtInfo { get; set; }
+
+        [NotNull]
         public Double Total { get; set; }      
 
         [NotNull]
         public DateTime Date { get; set; }
 
+        public Customer()
+        {
+            PayedDebt = 0;
+            PayedDebtInfo = "";
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                db.CreateTable<Customer>();
+            }
+        }
+
         public override string ToString()
         {
             return Name;
+        }
+
+        private static string path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
+               "db.sqlite");
+
+        public void AddToTable()
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                Customer returnedCustomer = (from s in db.Table<Customer>() where s.Id.Equals(Id) select s).FirstOrDefault();
+                if (returnedCustomer != null)
+                {
+                    //Join debts here
+                    this.Items = returnedCustomer.Items + this.Items;
+                    db.Update(this);
+                } else
+                {
+                    db.Insert(this);
+                }
+            }
+        }
+
+        
+
+        public void UpdateInTable()
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                db.Update(this);
+            }
+        }
+
+        public void DeleteFromTable()
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                db.Delete(this);
+            }
+
+        }
+
+        public static List<Customer> Contains(String search)
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+                  SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                var query = (from s in db.Table<Customer>() where s.Name.Contains(search) select s);
+                try { return new List<Customer>(query); }
+                catch { return null; }
+            }
+        }
+
+        public static List<Customer> Table
+        {
+            get
+            {
+                using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+                {
+                    var query = db.Table<Customer>();
+                    try { return new List<Customer>(query); }
+                    catch { return null; }
+                }
+            }
         }
 
     }
@@ -229,6 +202,8 @@ namespace Point.Model
         [NotNull]
         public DateTime DateAdded { get; set; }
 
+        
+
         private static string path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
                "db.sqlite");
 
@@ -238,7 +213,7 @@ namespace Point.Model
             get
             {
                 var culture = new CultureInfo("es-MX");
-                return Type + "\t" + Size + "\t" + Code + "\t" + Brand + "\t" + String.Format(culture, "{0:C2}", Price);
+                return Type + "\t" + Size + "\t" + Code + "\t" + Brand + "\t" + Price;
             }
         }
 
@@ -252,7 +227,16 @@ namespace Point.Model
             }
         }       
 
-        public void AddToInventory()
+        public Item()
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                db.CreateTable<Item>();
+            }
+        }
+
+        public void AddToTable()
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
                SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
@@ -261,7 +245,7 @@ namespace Point.Model
             }
         }
 
-        public void UpdateInInventory()
+        public void UpdateInTable()
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
                SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
@@ -271,7 +255,7 @@ namespace Point.Model
         }
 
 
-        public void DeleteFromInventory()
+        public void DeleteFromTable()
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
                SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
@@ -279,6 +263,61 @@ namespace Point.Model
                 db.Delete(this);
             }
         }
+
+        public void DeleteOne()
+        {
+            if (this.Num > 0)
+            {
+                this.Num--;
+                this.UpdateInTable();
+            }
+        }
+
+        public void AddToSalesByDay()
+        {
+            SalesByDay today = SalesByDay.Today();
+            string[] AllItems = today.ItemsString.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < AllItems.Length; i++)
+            {
+                if (AllItems[i].Contains(Description))
+                {
+                    AllItems[i] = AllItems[i].IncreaseByOne();
+                    today.ItemsString = string.Join("\n", AllItems);
+                    today.Total += Price;
+                    today.UpdateInTable();                
+                    return;
+                } 
+            }
+            today.ItemsString += "\n1\t" + Price + "\t" + Description;
+            today.Total += Price;
+            today.UpdateInTable();                            
+        }
+
+        public static List<Item> Table
+        {
+            get
+            {
+                using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+                {
+                    var query = db.Table<Item>();
+                    try { return new List<Item>(query); }
+                    catch { return null; }
+                }
+            }
+        }
+
+    }
+
+    public class StringItem
+    {
+        public string qty { get; set; }
+        public string brand { get; set; }
+        public string model { get; set; }
+        public string color { get; set; }
+        public string size { get; set; }
+        public string price { get; set; }
+        public string total { get; set; }
     }
 
     public partial class Sale
@@ -295,6 +334,170 @@ namespace Point.Model
         [NotNull]
         public Double Total { get; set; }
 
+        [Ignore]
+        public Customer Customer { get; set; }
+
+        public Sale()
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                db.CreateTable<Sale>();
+            }
+        }
+
+        public ObservableCollection<UniqueItem> CartList = new ObservableCollection<UniqueItem>();
+
+        public string ItemsString {
+            get
+            {
+                string returnString = "";
+                foreach (UniqueItem ui in CartList)
+                {
+                    returnString += ui.QtyString + ui.Item.ShortDescription + ui.Item.Price.ToString("C") + "\r";
+                }
+                return returnString;
+            }
+        }
+
+        private static string path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
+               "db.sqlite");
+
+        [Ignore]
+        public Double TotalValue
+        {
+            get {
+                try { return (CartList.Sum(x => ((x as UniqueItem).Item.Price * (x as UniqueItem).Qty))); }
+                catch { return 0; }
+            }
+        }
+
+        public void AddToTable()
+        {
+            Items = ItemsString;
+            Date = DateTime.Now;
+            Total = TotalValue;
+            //Insert new sale to Sale Table
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                var s = db.Insert(this);
+            }
+            //Add each item in the cart to the sale of the day table and delete from the inventory.
+            foreach (UniqueItem ui in CartList)
+            {
+                ui.AddToSalesByDay();
+                ui.DeleteFromInventory();
+            }
+            if(Customer != null)
+            {
+                Customer.Date = DateTime.Now;
+                Customer.Debt = TotalValue;
+                Customer.Total = Customer.PayedDebt - Customer.Debt;
+                Customer.Items = ItemsString;
+                Customer.AddToTable();
+            }
+
+        }
+
+
+        public bool AddItem(Item item)
+        {
+            if (item != null)
+            {
+                foreach (UniqueItem i in CartList)
+                {
+                    if (i.Item == item)
+                    {
+                        if (i.Qty < item.Num)
+                        {
+                            i.Qty++;
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+                
+                CartList.Add(new UniqueItem() { Item = item,Qty=1});
+                return true;
+
+            }
+            return false;
+        }
+
+        public bool RemoveItem(UniqueItem item)
+        {
+            if (item != null)
+            {
+                foreach (UniqueItem i in CartList)
+                {
+                    if (i == item)
+                    {
+                        if (i.Qty < item.Item.Num)
+                        {
+                            i.Qty--;
+                            return true;
+                        }
+                        else
+                        {
+                            CartList.Remove(i);
+                            return false;
+                        }
+                    }
+                }
+            }
+            return false;
+        }       
+
+        [Ignore]
+        public static List<Sale> Table
+        {
+            
+            get
+            {
+                using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+                {
+                    var query = db.Table<Sale>();
+                    return new List<Sale>(query);
+                }
+            }
+        }
+
+        
+
+    }
+
+    public class UniqueItem
+    {
+        public int Qty = 1;
+
+        public String QtyString { get
+            {
+                return Qty.ToString() + "×";
+            }
+        }
+
+        public Item Item { get; set; }
+        
+        public void AddToSalesByDay()
+        {
+            for (int i = 0; i < Qty; i++)
+            {
+                Item.AddToSalesByDay();
+            }
+        }
+
+        public void DeleteFromInventory()
+        {
+            for (int i = 0; i < Qty; i++)
+            {
+                Item.DeleteOne();
+            }
+        }
     }
 
     public partial class SalesByDay
@@ -311,216 +514,74 @@ namespace Point.Model
         [NotNull]
         public Double Total { get; set; }
 
-        public List<ItemAsStrings> getList()
+        public List<StringItem> Table
         {
-            List<ItemAsStrings> list = new List<ItemAsStrings>();
-            var str = ItemsString;
-            string[] rows = str.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string s in rows)
+            get
             {
-                string[] cols = s.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
-                list.Add(new ItemAsStrings() { qty = cols[0], total = cols[1], brand = cols[2], model = cols[3], color = cols[4], size = cols[5], price = cols[6] });
-            }
-            return list;
-        }
-
-        
-    }
-
-    public class ItemAsStrings
-        {
-            public string qty { get; set; }
-            public string brand { get; set; }
-            public string model { get; set; }
-            public string color { get; set; }
-            public string size { get; set; }
-            public string price { get; set; }
-            public string total { get; set; }
-        }
-
-
-
-    public class CurrentSale
-    {
-        
-        public CurrentSale()
-        {
-            items = new ObservableCollection<uniqueItem>();            
-        }
-
-        public  void addCurrentSaleToDB()
-        {
-            foreach (uniqueItem ui in items)
-            {
-                ui.addUniqueItemToSalesByDay();
-                ui.deleteUniqueItemFromInventory();
-            }
-        }
-
-
-        public ObservableCollection<uniqueItem> items { get; set; }
-        public Customer Person { get; set; }  
-        /*
-        public class UniqueItem : Item
-        {
-            public int qty;
-
-            public void addUniqueItemToSalesByDay()
-            {
-                for (int i = 0; i < qty; i++)
+                List<StringItem> list = new List<StringItem>();
+                var str = ItemsString;
+                string[] rows = str.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string s in rows)
                 {
-                    //addNewItemToSaleByDay(this);
+                    string[] cols = s.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
+                    Debug.WriteLine(cols[3]);
+                    list.Add(new StringItem() { qty = cols[0], total = cols[1], brand = cols[2], model = cols[3], color = cols[4], size = cols[5], price = cols[6] });
                 }
+                return list;
             }
+        }
 
-            public void deleteUniqueItemFromInventory()
-            {
-                for (int i = 0; i < qty; i++)
-                {
-                    //deleteItemFromInventory(item);
-                }
-            }
-
-            private void deleteItemFromInventory(Item item)
-            {
-                if (item.Num > 0)
-                {
-                    using (var db = new SQLite.Net.SQLiteConnection(new
-   SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-                    {
-                        item.Num--;
-                        db.Update(item);
-                    }
-                }
-
-
-            }
-
-        } 
-        */    
-
-        public class uniqueItem
-        {
-            string path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
+        private static string path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
                "db.sqlite");
-            private int _qty = 1;
-            public Item item { get; set; }
-            public string qty { get { return _qty.ToString() + "Ã—"; } }
-            public int intQty { get { return _qty; } set { _qty = value; } }
-            public void incrementQty() { _qty++; }
 
-            public void addUniqueItemToSalesByDay()
+        public static SalesByDay Today()
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+              SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
             {
-                for (int i = 0; i < intQty; i++)
+                String today = DateTime.Now.ToLocalTime().ToString("s").Substring(2, 8);
+                new SalesByDay();
+                var query = (from s in db.Table<SalesByDay>() where s.Day == today select s).FirstOrDefault();
+                if (query == null)
                 {
-                    addNewItemToSaleByDay(item);
+                    SalesByDay newDay = new SalesByDay() { Day = today, ItemsString = String.Empty, Total = 0 };
+                    db.Insert(newDay);
+                    return SalesByDay.Today();
                 }
-            }
+                else return query;
+            }             
+        }
 
-            public void deleteUniqueItemFromInventory()
+        public SalesByDay()
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
             {
-                for (int i = 0; i < intQty; i++)
-                {
-                    deleteItemFromInventory(item);
-                }
-            }
-
-            private void deleteItemFromInventory(Item item)
-            {
-                if (item.Num > 0)
-                {
-                    using (var db = new SQLite.Net.SQLiteConnection(new
-   SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-                    {
-                        item.Num--;
-                        db.Update(item);
-                    }
-                }
-
-
-            }
-
-            private void addNewItemToSaleByDay(Item item)
-            {
-                using (var db = new SQLite.Net.SQLiteConnection(new
-                   SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
-                {
-                    var date = DateTime.Now;
-                    var stringDate = date.ToLocalTime().ToString("s").Substring(2, 8);
-                    SalesByDay today = (from s in db.Table<SalesByDay>() where s.Day == stringDate select s).FirstOrDefault();
-                    if (today == null)
-                    {
-                        db.Insert(new SalesByDay() { Day = stringDate, ItemsString = "\n1\t" + item.Price + '\t' + item.Description, Total = item.Price });
-                    }
-                    else
-                    {
-                        string[] AllItems = today.ItemsString.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                        for (int i = 0; i < AllItems.Length; i++)
-                        {
-                            if (AllItems[i].Contains(item.Description))
-                            {
-                                AllItems[i] = increaseStringByOne(AllItems[i]);
-                                today.ItemsString = String.Join("\n", AllItems);
-                                today.Total += item.Price;
-                                db.Update(today);
-                                return;
-                            }
-                        }
-                        today.Total += item.Price;
-                        db.Update(today);                        
-                    }
-                }
-            }
-
-            private String increaseStringByOne(String str)
-            {
-                string[] col = str.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
-                col[0] = (int.Parse(col[0]) + 1).ToString();
-                col[1] = (double.Parse(col[1]) + item.Price).ToString();
-                return String.Join("\t", col);
+                db.CreateTable<SalesByDay>();
             }
         }
 
-        public string getItems()
-        {
-            string returnString = "";
-            foreach (uniqueItem ui in items)
-            {
-                returnString += ui.qty + ui.item.Description + "\r";
-            }
-            return returnString;
-        }        
 
-        public double total
+        public void AddToTable()
         {
-            get { return (items.Sum(x => ((x as uniqueItem).item.Price * (x as uniqueItem).intQty))); }
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                var s = db.Insert(this);
+            }
         }
 
-        public bool addItem(Item item)
+        public void UpdateInTable()
         {
-            if (item != null)
+            using (var db = new SQLite.Net.SQLiteConnection(new
+               SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
             {
-                
-                
-                    foreach (uniqueItem i in items)
-                    {
-                        if (i.item == item)
-                        {
-                            if (i.intQty < item.Num)
-                            {
-                                i.incrementQty();
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        }
-                    }
-                    items.Add(new uniqueItem { item = item });
-                    return true;
-                
+                db.Update(this);
             }
-            return false;
         }
+        
     }
 
+    
+   
 }

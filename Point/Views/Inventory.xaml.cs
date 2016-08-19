@@ -21,13 +21,12 @@ namespace Point.Views
 {
     public sealed partial class Inventory : Page
     {
-        private Data data = new Data();
         private Item SelectedItemToEdit;
-        public CurrentSale Cart = new CurrentSale();
+        public Sale Cart = new Sale();
 
         public Inventory()
         {
-            this.InitializeComponent();          
+            this.InitializeComponent();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -48,17 +47,21 @@ namespace Point.Views
 
         private void NewItemButton_Click(object sender, RoutedEventArgs e)
         {
-            NISplitView.IsPaneOpen = !NISplitView.IsPaneOpen;  
+            NISplitView.IsPaneOpen = !NISplitView.IsPaneOpen;
+            NSSplitView.IsPaneOpen = false;
+            EISplitView.IsPaneOpen = false;
         }
 
         private void EditItemButton_Click(object sender, RoutedEventArgs e)
         {
             EISplitView.IsPaneOpen = !EISplitView.IsPaneOpen;
+            NSSplitView.IsPaneOpen = false;
         }
 
         private void NewSaleButton_Click(object sender, RoutedEventArgs e)
         {
             NSSplitView.IsPaneOpen = !NSSplitView.IsPaneOpen;
+            EISplitView.IsPaneOpen = false;
             // If the pane is opened, deselect item from datagrid and clear previous data.
             if (NSSplitView.IsPaneOpen)
             {
@@ -84,7 +87,7 @@ namespace Point.Views
                     Price = double.Parse(NIPriceBox.Text),
                     Num = int.Parse(NINumBox.Text)
                 };
-                newItem.AddToInventory();
+                newItem.AddToTable();
                 NICancelButton_Click(null, null);                
                 UpdateTable();
             } else
@@ -112,21 +115,21 @@ namespace Point.Views
         private void UpdateCart()
         {
             CultureInfo culture = new CultureInfo("es-MX");
-            NSTotalTextBlock.Text = String.Format(culture, "{0:C2}", Cart.total);
+            NSTotalTextBlock.Text = String.Format(culture, "{0:C2}", Cart.TotalValue);
             NSCartList.ItemsSource = null;
-            NSCartList.ItemsSource = Cart.items;
+            NSCartList.ItemsSource = Cart.CartList;
         }
 
         private void NSAcceptButton_Click(object sender, RoutedEventArgs e)
         {
-            data.addNewSale(Cart);
+            Cart.AddToTable();
             NSCancelButton_Click(null, null);
             UpdateTable();
         }
 
         private void NSCancelButton_Click(object sender, RoutedEventArgs e)
         {
-            Cart = new CurrentSale();
+            Cart = new Sale();
             NSTitleTextBlock.Text = "Nueva venta";
             NSCustomerNameTextBlock.Text = String.Empty;
             NSCustomerNameTextBlock.Visibility = Visibility.Collapsed;
@@ -139,15 +142,7 @@ namespace Point.Views
             
             if (e.ClickedItem != null)
             {
-                CurrentSale.uniqueItem itemClicked = e.ClickedItem as CurrentSale.uniqueItem;
-                if (itemClicked.intQty > 1)
-                {
-                    itemClicked.intQty--;
-                }
-                else
-                {
-                    Cart.items.Remove(itemClicked);
-                }
+                Cart.RemoveItem(e.ClickedItem as UniqueItem);                
                 UpdateCart();
             }
         }
@@ -159,7 +154,7 @@ namespace Point.Views
             if (Dialog.Debtor != null)
             {
                 NSTitleTextBlock.Text = "Nueva deuda";
-                Cart.Person = Dialog.Debtor;
+                Cart.Customer = Dialog.Debtor;
                 NSCustomerNameTextBlock.Text = Dialog.Debtor.Name;
                 NSCustomerNameTextBlock.Visibility = Visibility.Visible;
             }
@@ -176,9 +171,10 @@ namespace Point.Views
                 SelectedItemToEdit.Type = EITypeBox.Text;
                 SelectedItemToEdit.Size = EISizeBox.Text;
                 SelectedItemToEdit.Code = EICodeBox.Text;
+                SelectedItemToEdit.Brand = EIBrandBox.Text;
                 SelectedItemToEdit.Price = double.Parse(EIPriceBox.Text);
                 SelectedItemToEdit.Num = int.Parse(EINumBox.Text);
-                SelectedItemToEdit.UpdateInInventory();
+                SelectedItemToEdit.UpdateInTable();
                 UpdateTable();
             }
         }
@@ -199,7 +195,7 @@ namespace Point.Views
         {
             if (SelectedItemToEdit != null)
             {
-                SelectedItemToEdit.DeleteFromInventory();
+                SelectedItemToEdit.DeleteFromTable();
                 EICancelButton_Click(null, null);
                 UpdateTable();
                 EIDeleteFlyout.Hide();
@@ -213,12 +209,12 @@ namespace Point.Views
         {
             if (DataGrid.SelectedColumn != null) {
                 DataGridColumnBase Column = DataGrid.SelectedColumn;
-                DataGrid.ItemsSource = data.Items;
+                DataGrid.ItemsSource = Item.Table;
                 DataGrid.SelectColumn(Column);
                 DataGrid.SelectColumn(Column);
             } else
             {
-                DataGrid.ItemsSource = data.Items;
+                DataGrid.ItemsSource = Item.Table;
             }
         }
 
@@ -262,13 +258,13 @@ namespace Point.Views
                 DataGrid.SelectedItem = null;
                 if (SelectedItem != null)
                 {
-                    if (SelectedItem.Num > 0)//check this later
+                    if (SelectedItem.Num > 0)
                     {
-                        Cart.addItem(SelectedItem);
+                        
+                        Cart.AddItem(SelectedItem);
                         UpdateCart();
                     }
                 }
-
             }
             else if (EISplitView.IsPaneOpen)
             {
@@ -293,6 +289,4 @@ namespace Point.Views
             }
         }
     }
-
-
 }

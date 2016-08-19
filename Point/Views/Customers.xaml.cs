@@ -16,7 +16,6 @@ namespace Point.Views
 {
     public sealed partial class Customers : Page
     {
-        private Data data = new Data();
         private Customer SelectedCustomerToEdit;
 
         public Customers()
@@ -48,7 +47,7 @@ namespace Point.Views
 
         private void UpdateTable()
         {
-            DataGrid.ItemsSource = data.getCustomers();
+            DataGrid.ItemsSource = Customer.Table;
         }
 
         private void TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -85,7 +84,7 @@ namespace Point.Views
                     SelectedCustomerToEdit.Debt = double.Parse(ECDebtBox.Text);
                     SelectedCustomerToEdit.PayedDebt = double.Parse(ECPayedDebtBox.Text);
                     SelectedCustomerToEdit.Total = SelectedCustomerToEdit.PayedDebt - SelectedCustomerToEdit.Debt;
-                    data.UpdateCustomer(SelectedCustomerToEdit);
+                    SelectedCustomerToEdit.UpdateInTable();
                     ECCancelButton_Click(null, null);
                     UpdateTable();
                 }
@@ -96,8 +95,9 @@ namespace Point.Views
                     {                        
                             SelectedCustomerToEdit.PayedDebt = SelectedCustomerToEdit.PayedDebt + double.Parse(PDPayedDebtBox.Text);
                             SelectedCustomerToEdit.Total = SelectedCustomerToEdit.PayedDebt - SelectedCustomerToEdit.Debt;
-                            data.UpdateCustomer(SelectedCustomerToEdit);
-                            ECCancelButton_Click(null, null);
+                        SelectedCustomerToEdit.PayedDebtInfo += double.Parse(PDPayedDebtBox.Text).ToString("c") + " " + DateTime.Now.ToLocalTime().ToString("d") + "\r";
+                        SelectedCustomerToEdit.UpdateInTable();
+                        ECCancelButton_Click(null, null);
                             UpdateTable();        
                     } else
                     {
@@ -142,7 +142,7 @@ namespace Point.Views
         {
             if (SelectedCustomerToEdit != null)
             {
-                data.DeleteCustomer(SelectedCustomerToEdit);
+                SelectedCustomerToEdit.DeleteFromTable();
                 ECCancelButton_Click(null, null);
                 UpdateTable();
                 ECDeleteFlyout.Hide();

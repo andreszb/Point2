@@ -16,14 +16,12 @@ namespace Point.Views
 {
     public sealed partial class Sales : Page
     {
-        private Data data = new Data();
-
         public Sales()
         {
             this.InitializeComponent();
             CultureInfo.CurrentCulture = new CultureInfo("es-MX");
-            DataGridDay.ItemsSource = data.getSalesByDay(DateTime.Now.ToLocalTime());
-            TotalSalesByDay.Text = data.getTotalFromDayAsString(DateTime.Now.ToLocalTime());
+            DataGridDay.ItemsSource = DateTime.Now.ToLocalTime().Sales();
+            TotalSalesByDay.Text = DateTime.Now.ToLocalTime().Total();
             DateTextBlock.Text = DateTime.Now.ToLocalTime().ToString("D");
 
         }
@@ -35,7 +33,7 @@ namespace Point.Views
 
         private void UpdateTable()
         {
-            DataGrid.ItemsSource = data.Sales;
+            DataGrid.ItemsSource = Sale.Table;
         }
 
         private void TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -60,8 +58,8 @@ namespace Point.Views
         {
             if (sender.SelectedDates.Count > 0)
             {
-                DataGridDay.ItemsSource = data.getSalesByDay(args.AddedDates[0].LocalDateTime);
-                TotalSalesByDay.Text = data.getTotalFromDayAsString(args.AddedDates[0].LocalDateTime);
+                DataGridDay.ItemsSource = args.AddedDates[0].LocalDateTime.Sales();
+                TotalSalesByDay.Text = args.AddedDates[0].LocalDateTime.Total();
                 DateTextBlock.Text = args.AddedDates[0].LocalDateTime.ToString("D");
             }
             GridDay.Visibility = Visibility.Visible;
