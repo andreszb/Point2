@@ -1,19 +1,11 @@
 ﻿using Point.Model;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
+
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 // The Content Dialog item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -32,18 +24,12 @@ namespace Point.Views
 
         private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (String.IsNullOrEmpty(NameBox.Text))
-            {
-
-                
-
-            } else
-            {
+            
                 if (!isReturningCustomer)
                 {
                     Debtor = new Customer() { Name = NameBox.Text, Address = AddressBox.Text, PhoneNumber = PhoneBox.Text, Notes = NoteBox.Text };
                 }                 
-            }
+            
         }
 
         private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -74,7 +60,7 @@ namespace Point.Views
                 {
                     sender.ItemsSource = Customer.Contains(sender.Text);
                 }
-            } 
+            }
         }
 
         private void NameBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
@@ -93,6 +79,24 @@ namespace Point.Views
         private void NameBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
 
+        }
+       
+        private void BoxLostFocus(object sender, RoutedEventArgs e)
+        {
+            if (String.IsNullOrEmpty(NameBox.Text) || String.IsNullOrEmpty(AddressBox.Text) || String.IsNullOrEmpty(PhoneBox.Text) || String.IsNullOrEmpty(NoteBox.Text))
+            {
+                this.IsPrimaryButtonEnabled = false;
+            }
+            else
+            {
+                this.IsPrimaryButtonEnabled = true;
+            }
+            var redBorder = new SolidColorBrush(Colors.Red);
+            var alphaBorder = new SolidColorBrush(Colors.Transparent);
+            NameBox.BorderBrush = (String.IsNullOrEmpty(NameBox.Text)) ? redBorder : alphaBorder;
+            AddressBox.BorderBrush = (String.IsNullOrEmpty(AddressBox.Text)) ? redBorder : alphaBorder;
+            PhoneBox.BorderBrush = (String.IsNullOrEmpty(PhoneBox.Text)) ? redBorder : alphaBorder;
+            NoteBox.BorderBrush = (String.IsNullOrEmpty(NoteBox.Text)) ? redBorder : alphaBorder;
         }
     }
 }

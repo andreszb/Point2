@@ -5,6 +5,7 @@
                xmlns:local="using:Point.Views"
                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                Title="Agregar como deuda"
+               IsPrimaryButtonEnabled="False"
                PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
                PrimaryButtonText="Aceptar"
                SecondaryButtonClick="ContentDialog_SecondaryButtonClick"
@@ -29,6 +30,7 @@
         <AutoSuggestBox Name="NameBox"
                         Grid.Column="1"
                         VerticalAlignment="Center"
+                        LostFocus="BoxLostFocus"
                         QuerySubmitted="NameBox_QuerySubmitted"
                         SuggestionChosen="NameBox_SuggestionChosen"
                         TextChanged="NameBox_TextChanged" />
@@ -37,22 +39,24 @@
                    Margin="10"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Center"
-                   Text="Direccion:" />
+                   Text="Dirección:" />
         <TextBox Name="AddressBox"
                  Grid.Row="1"
                  Grid.Column="1"
-                 VerticalAlignment="Center" />
+                 VerticalAlignment="Center"
+                 LostFocus="BoxLostFocus" />
 
         <TextBlock Grid.Row="2"
                    Grid.Column="0"
                    Margin="10"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Center"
-                   Text="Telefono:" />
+                   Text="Teléfono:" />
         <TextBox Name="PhoneBox"
                  Grid.Row="2"
                  Grid.Column="1"
-                 VerticalAlignment="Center" />
+                 VerticalAlignment="Center"
+                 LostFocus="BoxLostFocus" />
 
         <TextBlock Grid.Row="3"
                    Grid.Column="0"
@@ -63,7 +67,8 @@
         <TextBox Name="NoteBox"
                  Grid.Row="3"
                  Grid.Column="1"
-                 VerticalAlignment="Center" />
+                 VerticalAlignment="Center"
+                 LostFocus="BoxLostFocus" />
 
     </Grid>
 </ContentDialog>

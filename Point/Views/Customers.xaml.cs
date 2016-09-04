@@ -91,23 +91,28 @@ namespace Point.Views
                 else
                 {
                     double payment = double.Parse(PDPayedDebtBox.Text);
-                   if (-SelectedCustomerToEdit.Total >= payment && SelectedCustomerToEdit.Total != 0)
+                    if (-SelectedCustomerToEdit.Total >= payment && SelectedCustomerToEdit.Total != 0)
                     {                        
-                            SelectedCustomerToEdit.PayedDebt = SelectedCustomerToEdit.PayedDebt + double.Parse(PDPayedDebtBox.Text);
-                            SelectedCustomerToEdit.Total = SelectedCustomerToEdit.PayedDebt - SelectedCustomerToEdit.Debt;
+                        SelectedCustomerToEdit.PayedDebt = SelectedCustomerToEdit.PayedDebt + double.Parse(PDPayedDebtBox.Text);
+                        SelectedCustomerToEdit.Total = SelectedCustomerToEdit.PayedDebt - SelectedCustomerToEdit.Debt;
                         SelectedCustomerToEdit.PayedDebtInfo += double.Parse(PDPayedDebtBox.Text).ToString("c") + " " + DateTime.Now.ToLocalTime().ToString("d") + "\r";
                         SelectedCustomerToEdit.UpdateInTable();
+                        Sale record = new Sale();
+                        record.Items = "Pago de " + SelectedCustomerToEdit.Name;
+                        record.Total = payment;
+                        record.Date = DateTime.Now;
+                        record.AddRecordToTable();
+                        SalesByDay today = SalesByDay.Today();
+                        today.ItemsString += "\n1\t"+ payment.ToString()+"\tPago de " + SelectedCustomerToEdit.Name + "\t \t \t \t"+payment.ToString();
+                        today.Total += payment;
+                        today.UpdateInTable();
                         ECCancelButton_Click(null, null);
-                            UpdateTable();        
+                        UpdateTable();        
                     } else
                     {
                         ECErrorTextBlock.Visibility = Visibility.Visible;
-                    }
-                        
-                    
-                    
-                }
-                
+                    }                                                              
+                }                
             }
         }
 

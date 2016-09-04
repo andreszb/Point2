@@ -1,15 +1,9 @@
 using System;
-using System.IO;
-using Point.ViewModels;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
-using System.Collections.ObjectModel;
-using SQLite.Net.Attributes;
-using System.Diagnostics;
 using MyToolkit.Controls;
 using Point.Model;
-using System.Threading.Tasks;
 using System.Globalization;
 
 namespace Point.Views
@@ -22,6 +16,8 @@ namespace Point.Views
             CultureInfo.CurrentCulture = new CultureInfo("es-MX");
             DataGridDay.ItemsSource = DateTime.Now.ToLocalTime().Sales();
             TotalSalesByDay.Text = DateTime.Now.ToLocalTime().Total();
+            TotalSalesByDayDebt.Text = DateTime.Now.ToLocalTime().TotalOwed();
+
             DateTextBlock.Text = DateTime.Now.ToLocalTime().ToString("D");
 
         }
@@ -60,6 +56,8 @@ namespace Point.Views
             {
                 DataGridDay.ItemsSource = args.AddedDates[0].LocalDateTime.Sales();
                 TotalSalesByDay.Text = args.AddedDates[0].LocalDateTime.Total();
+                TotalSalesByDayDebt.Text = args.AddedDates[0].LocalDateTime.TotalOwed();
+
                 DateTextBlock.Text = args.AddedDates[0].LocalDateTime.ToString("D");
             }
             GridDay.Visibility = Visibility.Visible;

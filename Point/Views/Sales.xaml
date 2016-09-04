@@ -61,6 +61,7 @@
         </VisualStateManager.VisualStateGroups>
 
         <controls:PageHeader x:Name="pageHeader"
+                             EllipsisVisibility="Collapsed"
                              RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
                              RelativePanel.AlignTopWithPanel="True"
@@ -155,7 +156,6 @@
                     <DataTemplate>
                         <StackPanel Name="DetailsStackPanel" Visibility="Visible">
                             <TextBlock FontWeight="Bold" Text="Detalles: " />
-                            <TextBlock Text="{Binding Id}" />
                             <TextBlock Text="{Binding Items}" />
                         </StackPanel>
                     </DataTemplate>
@@ -206,18 +206,11 @@
                                                         CanSort="True"
                                                         Header="Total" />
                 </DataGridControl:DataGrid.Columns>
-                <DataGridControl:DataGrid.ItemDetailsTemplate>
-                    <DataTemplate>
-                        <StackPanel Name="DetailsStackPanel" Visibility="Visible">
-                            <TextBlock FontWeight="Bold" Text="Detalles: " />
-
-                        </StackPanel>
-                    </DataTemplate>
-                </DataGridControl:DataGrid.ItemDetailsTemplate>
             </DataGridControl:DataGrid>
             <Grid Grid.Row="1" Margin="15">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Name="DateTextBlock"
@@ -225,10 +218,16 @@
                            FontSize="30"
                            Foreground="Gray"
                            Text="Date" />
-                <TextBlock Name="TotalSalesByDay"
+                <TextBlock Name="TotalSalesByDayDebt"
                            Grid.Column="1"
+                           Margin="20,0"
                            FontSize="30"
-                           Foreground="Gray"
+                           Foreground="Tomato"
+                           Text="Total" />
+                <TextBlock Name="TotalSalesByDay"
+                           Grid.Column="2"
+                           FontSize="30"
+                           Foreground="Green"
                            Text="Total" />
             </Grid>
 

@@ -40,7 +40,8 @@
                     DataContext="{Binding ElementName=ThisPage}">
             <PasswordBox Name="PasswordTextBox"
                          Header="Contraseña"
-                         MaxLength="8" />
+                         KeyUp="PasswordTextBox_KeyUp"
+                         MaxLength="10" />
             <Button Margin="0,12,0,0"
                     HorizontalAlignment="Right"
                     Click="LoginClicked">

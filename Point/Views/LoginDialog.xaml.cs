@@ -1,7 +1,6 @@
 ﻿using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using System.Diagnostics;
 using Windows.UI.Xaml.Media;
 using Windows.UI;
 
@@ -9,7 +8,7 @@ namespace Point.Views
 {
     public sealed partial class LoginDialog : UserControl
     {
-        string[] passwords = { "12345678", "87654321" };
+        string[] passwords = { "GRM1100456" };
 
         public LoginDialog()
         {
@@ -37,5 +36,12 @@ namespace Point.Views
             HideRequested?.Invoke(this, EventArgs.Empty);
         }
 
+        private void PasswordTextBox_KeyUp(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                LoginClicked(this, null);
+            }
+        }
     }
 }

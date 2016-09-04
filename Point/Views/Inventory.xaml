@@ -438,15 +438,6 @@
                                                                                 Binding="{Binding Num}"
                                                                                 Header="Cantidad" />
                                         </DataGridControl:DataGrid.Columns>
-                                        <DataGridControl:DataGrid.ItemDetailsTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Name="DetailsStackPanel" Visibility="Visible">
-                                                    <TextBlock FontWeight="Bold" Text="Detalles: " />
-                                                    <TextBlock Text="{Binding Id}" />
-                                                    <TextBlock Text="{Binding DateAdded, Converter={StaticResource DateToStringFormatConverter}}" />
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </DataGridControl:DataGrid.ItemDetailsTemplate>
                                     </DataGridControl:DataGrid>
                                 </Grid>
 

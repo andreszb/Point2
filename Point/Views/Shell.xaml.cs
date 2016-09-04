@@ -1,13 +1,8 @@
 using System;
-using System.ComponentModel;
-using System.Linq;
-using Template10.Common;
 using Template10.Controls;
 using Template10.Services.NavigationService;
-using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using System.Diagnostics;
 using Windows.UI.Xaml.Media;
 using Windows.UI;
 namespace Point.Views
@@ -52,8 +47,8 @@ namespace Point.Views
             {
                 LoginModal.IsModal = true;
                 LoginTextBlock.Text = "Cerrar sesion";
-                LoginTextBlock.Foreground = new SolidColorBrush(Colors.Gray);
-                LoginIcon.Foreground = new SolidColorBrush(Colors.Gray);
+                LoginTextBlock.Foreground = new SolidColorBrush(Colors.Red);
+                LoginIcon.Foreground = new SolidColorBrush(Colors.Red);
 
             }
         }
@@ -61,6 +56,9 @@ namespace Point.Views
         private void LoginHide(object sender, System.EventArgs e)
         {
             LoginModal.IsModal = false;
+            LoginTextBlock.Text = "Administrador";
+            LoginTextBlock.Foreground = new SolidColorBrush(Colors.White);
+            LoginIcon.Foreground = new SolidColorBrush(Colors.White);
         }
 
         private void LoginLoggedIn(object sender, EventArgs e)
@@ -68,6 +66,7 @@ namespace Point.Views
             LoginModal.IsModal = false;
             App.isAdminLoggedIn = true;
             MyHamburgerMenu.NavigationService.Refresh();
+
         }
 
         #endregion

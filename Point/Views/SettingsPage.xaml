@@ -58,8 +58,12 @@
                              RelativePanel.AlignTopWithPanel="True"
                              Text="Acerca de esta aplicacion" />
 
-        <Grid Grid.Row="1" Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Grid Grid.Row="1"
+              Margin="20"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -68,20 +72,31 @@
             <TextBlock x:Name="DisplayNameTextBlock"
                        Grid.Row="0"
                        Margin="0,0,0,12"
+                       HorizontalAlignment="Center"
                        VerticalAlignment="Center"
-                       FontSize="30" HorizontalAlignment="Center"
+                       FontSize="30"
                        Text="{Binding AboutPartViewModel.DisplayName}" />
 
             <TextBlock x:Name="PublisherTextBlock"
                        Grid.Row="1"
-                       Text="Control V&amp;J" FontSize="24" HorizontalAlignment="Center" />
-            <TextBlock x:Name="YearTextBlock"
+                       HorizontalAlignment="Center"
+                       FontSize="24"
+                       Text="Control V&amp;J" />
+            <TextBlock x:Name="DeveloperTextBlock"
                        Grid.Row="2"
-                       Text="2016" FontSize="20" HorizontalAlignment="Center"/>
+                       HorizontalAlignment="Center"
+                       FontSize="20"
+                       Text="Andres Zambrano" />
+            <TextBlock x:Name="YearTextBlock"
+                       Grid.Row="3"
+                       HorizontalAlignment="Center"
+                       FontSize="20"
+                       Text="2016" />
 
             <TextBlock x:Name="VersionTextBlock"
-                       Grid.Row="3"
-                       FontSize="18" HorizontalAlignment="Center">
+                       Grid.Row="4"
+                       HorizontalAlignment="Center"
+                       FontSize="18">
                 <Run>Version</Run>
                 <Run Text="{Binding AboutPartViewModel.Version}" />
             </TextBlock>

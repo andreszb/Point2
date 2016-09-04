@@ -7,31 +7,51 @@ using System.Threading.Tasks;
 using SQLite.Net.Attributes;
 using SQLite.Net;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Globalization;
 using Template10.Mvvm;
 
 
 namespace Point.Model
 {
+    
     public static class ExtensionMethods
     {
+        //Database location
         private static string path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
                "db.sqlite");
 
+        // Returns total from SalesByDay Table for a specific date.
         public static String Total(this DateTime date)
+        {
+            using (var db = new SQLite.Net.SQLiteConnection(new
+                  SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+            {
+                
+                var stringDate = date.ToLocalTime().ToString("s").Substring(2, 8);
+                //Search for date in table
+                SalesByDay today = (from s in db.Table<SalesByDay>() where s.Day == stringDate select s).FirstOrDefault();
+                //Set value to total property if not null
+                Double val = today != null ? today.Total : 0;
+                CultureInfo culture = new CultureInfo("es-MX");
+                //Return as string formated as currency.
+                return String.Format(culture, "{0:C2}", val);
+            }
+        }
+
+        public static String TotalOwed(this DateTime date)
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
                   SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
             {
                 var stringDate = date.ToLocalTime().ToString("s").Substring(2, 8);
                 SalesByDay today = (from s in db.Table<SalesByDay>() where s.Day == stringDate select s).FirstOrDefault();
-                Double val = today != null ? today.Total : 0;
+                Double val = today != null ? today.TotalOwed : 0;
                 CultureInfo culture = new CultureInfo("es-MX");
                 return String.Format(culture, "{0:C2}", val);
             }
         }
 
+        //Gets sales for a specific date as a list.
         public static List<StringItem> Sales(this DateTime date)
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
@@ -40,16 +60,29 @@ namespace Point.Model
                 var stringDate = date.ToLocalTime().ToString("s").Substring(2, 8);
                 SalesByDay today = new SalesByDay();
                 today = (from s in db.Table<SalesByDay>() where s.Day == stringDate select s).FirstOrDefault();
-                
+                //Return list if found              
                 return today != null ? today.Table : null;
             }
         }
 
+        //Increments the qty by one
         public static String IncreaseByOne(this String str)
         {
+            //Splits each item into different columns
+
             string[] col = str.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
+            //Column 0 contains quantity, column 1 contains total for the item and column 6 contains the price for the item.
             col[0] = (int.Parse(col[0]) + 1).ToString();
             col[1] = (double.Parse(col[1]) + double.Parse(col[6])).ToString();
+            //Rejoin all columns and return
+            return String.Join("\t", col);
+        }
+
+        public static String DecreaseByOne(this String str)
+        {
+            string[] col = str.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
+            col[0] = (int.Parse(col[0]) - 1).ToString();
+            col[1] = (double.Parse(col[1]) - double.Parse(col[6])).ToString();
             return String.Join("\t", col);
         }
 
@@ -96,6 +129,7 @@ namespace Point.Model
 
         public Customer()
         {
+            //Every time a customer is created if the table is not found, it is created.
             PayedDebt = 0;
             PayedDebtInfo = "";
             using (var db = new SQLite.Net.SQLiteConnection(new
@@ -107,22 +141,26 @@ namespace Point.Model
 
         public override string ToString()
         {
+            //Override ToString to return the name of the customer.
             return Name;
         }
 
+        // Database location
         private static string path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
                "db.sqlite");
 
+        //Inserts a new customer if the customer is not already in the table, if it is, it updates it.
         public void AddToTable()
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
                SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
             {
+                //Look for customer in table
                 Customer returnedCustomer = (from s in db.Table<Customer>() where s.Id.Equals(Id) select s).FirstOrDefault();
                 if (returnedCustomer != null)
                 {
-                    //Join debts here
-                    this.Items = returnedCustomer.Items + this.Items;
+                    //Add new items to items in items column.
+                    this.Items = returnedCustomer.Items + "\r(" + DateTime.Now.ToLocalTime().ToString("d") + ")\r" +this.Items;
                     db.Update(this);
                 } else
                 {
@@ -152,6 +190,7 @@ namespace Point.Model
 
         }
 
+        //Return all customers whose name has string.
         public static List<Customer> Contains(String search)
         {
             using (var db = new SQLite.Net.SQLiteConnection(new
@@ -163,6 +202,7 @@ namespace Point.Model
             }
         }
 
+        //Return a list with all customers in database
         public static List<Customer> Table
         {
             get
@@ -171,6 +211,7 @@ namespace Point.Model
                SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
                 {
                     var query = db.Table<Customer>();
+                    //Return null if the table doesn't exist in database.
                     try { return new List<Customer>(query); }
                     catch { return null; }
                 }
@@ -207,6 +248,7 @@ namespace Point.Model
         private static string path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
                "db.sqlite");
 
+        
         [Ignore]
         public string Description
         {
@@ -238,6 +280,7 @@ namespace Point.Model
 
         public void AddToTable()
         {
+            DateAdded = DateTime.Now;
             using (var db = new SQLite.Net.SQLiteConnection(new
                SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
             {
@@ -264,6 +307,7 @@ namespace Point.Model
             }
         }
 
+        //Decreases the Num column from the current item by one.
         public void DeleteOne()
         {
             if (this.Num > 0)
@@ -273,12 +317,24 @@ namespace Point.Model
             }
         }
 
+
+        //Increases the Num column from current item by one.
+        public void AddOne()
+        {            
+            this.Num++;
+            this.UpdateInTable();         
+        }
+
+        //Adds the current item to today's row from SalesByDay table.
         public void AddToSalesByDay()
         {
+            //Get today's row
             SalesByDay today = SalesByDay.Today();
+            //Separate items
             string[] AllItems = today.ItemsString.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < AllItems.Length; i++)
             {
+                //Look for this item in array of items. If found, increase current item by one, rejoin and update table.
                 if (AllItems[i].Contains(Description))
                 {
                     AllItems[i] = AllItems[i].IncreaseByOne();
@@ -288,11 +344,75 @@ namespace Point.Model
                     return;
                 } 
             }
+            //If not found, set the value to this item's info and update.
             today.ItemsString += "\n1\t" + Price + "\t" + Description;
             today.Total += Price;
             today.UpdateInTable();                            
         }
 
+        //Same as above but increments TotalOwed instead of Total.
+        public void AddToSalesByDayAsDebt()
+        {
+            SalesByDay today = SalesByDay.Today();
+            string[] AllItems = today.ItemsString.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < AllItems.Length; i++)
+            {
+                if (AllItems[i].Contains(Description))
+                {
+                    AllItems[i] = AllItems[i].IncreaseByOne();
+                    today.ItemsString = string.Join("\n", AllItems);
+                    today.TotalOwed += Price;
+                    today.UpdateInTable();
+                    return;
+                }
+            }
+            today.ItemsString += "\n1\t" + Price + "\t" + Description;
+            today.TotalOwed += Price;
+            today.UpdateInTable();
+        }
+
+        //Same as AddToSalesByDay but decreases Qty and Total instead.
+        public void DeleteFromSalesByDay()
+        {
+            SalesByDay today = SalesByDay.Today();
+            string[] AllItems = today.ItemsString.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < AllItems.Length; i++)
+            {
+                if (AllItems[i].Contains(Description))
+                {
+                    AllItems[i] = AllItems[i].DecreaseByOne();
+                    today.ItemsString = string.Join("\n", AllItems);
+                    today.Total -= Price;
+                    today.UpdateInTable();
+                    return;
+                }
+            }
+            today.ItemsString += "\n1\t" + Price + "\t" + Description;
+            today.Total -= Price;
+            today.UpdateInTable();
+        }
+
+        public void DeleteFromSalesByDayAsDebt()
+        {
+            SalesByDay today = SalesByDay.Today();
+            string[] AllItems = today.ItemsString.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < AllItems.Length; i++)
+            {
+                if (AllItems[i].Contains(Description))
+                {
+                    AllItems[i] = AllItems[i].DecreaseByOne();
+                    today.ItemsString = string.Join("\n", AllItems);
+                    today.TotalOwed -= Price;
+                    today.UpdateInTable();
+                    return;
+                }
+            }
+            today.ItemsString += "\n1\t" + Price + "\t" + Description;
+            today.TotalOwed -= Price;
+            today.UpdateInTable();
+        }
+
+        //Returns all items in Item table in database.
         public static List<Item> Table
         {
             get
@@ -363,6 +483,7 @@ namespace Point.Model
         private static string path = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path,
                "db.sqlite");
 
+        //Calculates the total from CartList by adding each item multiplied by it's quantity.
         [Ignore]
         public Double TotalValue
         {
@@ -372,6 +493,7 @@ namespace Point.Model
             }
         }
 
+        //Adds a new sale to the Sales table and to SalesByDay table. Updates customer if necessary.
         public void AddToTable()
         {
             Items = ItemsString;
@@ -386,21 +508,44 @@ namespace Point.Model
             //Add each item in the cart to the sale of the day table and delete from the inventory.
             foreach (UniqueItem ui in CartList)
             {
-                ui.AddToSalesByDay();
                 ui.DeleteFromInventory();
             }
+            //If there is a customer set, add as debt instead.
             if(Customer != null)
             {
+                foreach (UniqueItem ui in CartList)
+                {
+                    ui.AddToSalesByDayAsDebt();
+                }
+                //Set all customer properties.
                 Customer.Date = DateTime.Now;
-                Customer.Debt = TotalValue;
+                Customer.Debt = Customer.Debt + TotalValue;
                 Customer.Total = Customer.PayedDebt - Customer.Debt;
                 Customer.Items = ItemsString;
                 Customer.AddToTable();
+            } else
+            {
+                foreach (UniqueItem ui in CartList)
+                {
+                    ui.AddToSalesByDay();
+                }
             }
-
         }
 
+        //Adds a new record to the Sales table.
+        public void AddRecordToTable()
+        {
+            if (Items != null && Date != null)
+            {
+                using (var db = new SQLite.Net.SQLiteConnection(new
+                   SQLite.Net.Platform.WinRT.SQLitePlatformWinRT(), path))
+                {
+                    var s = db.Insert(this);
+                }
+            }
+        }
 
+        //Increments a UniqueItem's Qty that corresponds to the received parameter.
         public bool AddItem(Item item)
         {
             if (item != null)
@@ -413,10 +558,10 @@ namespace Point.Model
                         {
                             i.Qty++;
                             return true;
-                        }
-                        else
+                        } else 
                         {
-                            return false;
+                            i.Qty--;
+                            return true;
                         }
                     }
                 }
@@ -489,6 +634,22 @@ namespace Point.Model
             {
                 Item.AddToSalesByDay();
             }
+            for (int i = 0; i > Qty; i--)
+            {
+                Item.DeleteFromSalesByDay();
+            }
+        }
+
+        public void AddToSalesByDayAsDebt()
+        {
+            for (int i = 0; i < Qty; i++)
+            {
+                Item.AddToSalesByDayAsDebt();
+            }
+            for (int i = 0; i > Qty; i--)
+            {
+                Item.DeleteFromSalesByDayAsDebt();
+            }
         }
 
         public void DeleteFromInventory()
@@ -497,7 +658,14 @@ namespace Point.Model
             {
                 Item.DeleteOne();
             }
+            for (int i = 0; i > Qty; i--)
+            {
+                Item.AddOne();
+            }
+
         }
+
+        
     }
 
     public partial class SalesByDay
@@ -514,6 +682,9 @@ namespace Point.Model
         [NotNull]
         public Double Total { get; set; }
 
+        [NotNull]
+        public Double TotalOwed { get; set; }
+
         public List<StringItem> Table
         {
             get
@@ -524,7 +695,6 @@ namespace Point.Model
                 foreach (string s in rows)
                 {
                     string[] cols = s.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
-                    Debug.WriteLine(cols[3]);
                     list.Add(new StringItem() { qty = cols[0], total = cols[1], brand = cols[2], model = cols[3], color = cols[4], size = cols[5], price = cols[6] });
                 }
                 return list;
@@ -544,7 +714,7 @@ namespace Point.Model
                 var query = (from s in db.Table<SalesByDay>() where s.Day == today select s).FirstOrDefault();
                 if (query == null)
                 {
-                    SalesByDay newDay = new SalesByDay() { Day = today, ItemsString = String.Empty, Total = 0 };
+                    SalesByDay newDay = new SalesByDay() { Day = today, ItemsString = String.Empty, Total = 0, TotalOwed = 0 };
                     db.Insert(newDay);
                     return SalesByDay.Today();
                 }

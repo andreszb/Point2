@@ -1,20 +1,9 @@
 using System;
-using System.IO;
-using Point.ViewModels;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
-using Windows.UI.Xaml.Data;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using MyToolkit.Model;
-using MyToolkit.Paging;
-using System.ComponentModel;
 using Point.Model;
 using MyToolkit.Controls;
-using System.Linq;
 using System.Globalization;
 
 namespace Point.Views
@@ -26,6 +15,7 @@ namespace Point.Views
 
         public Inventory()
         {
+            CultureInfo.CurrentCulture = new CultureInfo("es-MX");
             this.InitializeComponent();
         }
 
@@ -258,9 +248,8 @@ namespace Point.Views
                 DataGrid.SelectedItem = null;
                 if (SelectedItem != null)
                 {
-                    if (SelectedItem.Num > 0)
-                    {
-                        
+                    if (SelectedItem.Num >= 0)
+                    {                       
                         Cart.AddItem(SelectedItem);
                         UpdateCart();
                     }
